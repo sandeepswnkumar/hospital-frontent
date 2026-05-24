@@ -10,14 +10,15 @@ import { assets } from '@/assets/assets'
 
 export default function StaffLogin() {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: 'sandeep@rest.com',
+    password: 'dsdsd',
     role: 'admin', // 'admin' | 'doctor' | 'staff'
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate()
 
   // ─── Handlers ───
   const validateEmail = (email) => {
@@ -34,6 +35,9 @@ export default function StaffLogin() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
+
+    localStorage.setItem("user", JSON.stringify({ role: "Admin" }))
+    navigate("/admin/dashboard")
 
     // Validation
     if (!formData.email) {
@@ -57,14 +61,14 @@ export default function StaffLogin() {
     }
 
     // Simulate API call
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      onLoginSuccess?.({
-        email: formData.email,
-        role: formData.role,
-      });
-    }, 1500);
+    // setIsLoading(true);
+    // setTimeout(() => {
+    //   setIsLoading(false);
+    //   onLoginSuccess?.({
+    //     email: formData.email,
+    //     role: formData.role,
+    //   });
+    // }, 1500);
   };
 
   // ─── Icons ───

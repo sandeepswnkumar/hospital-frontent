@@ -17,7 +17,7 @@ import DoctorDashboard from './pages/doctor/DoctorDashboard';
 import DoctorPatients from './pages/doctor/DoctorPatients';
 
 // Staff Pages
-import StaffDashboard from './pages/staff/StaffDashboard';
+// import StaffDashboard from './pages/staff/StaffDashboard';
 import StaffAppointments from './pages/staff/StaffAppointments';
 import StaffPayments from './pages/staff/StaffPayments';
 
@@ -25,6 +25,9 @@ import StaffPayments from './pages/staff/StaffPayments';
 import PatientDashboard from './pages/patient/PatientDashboard';
 import AddFamilyMember from './pages/patient/AddFamilyMember';
 import MakeAppointment from './pages/patient/MakeAppointment';
+import PatientLayout from './layouts/PatientLayout';
+import ConfirmBooking from './pages/patient/ConfirmBooking';
+import StaffDashboard from './pages/dashboards/StaffDashboard';
 
 export default function App() {
   return (
@@ -39,7 +42,8 @@ export default function App() {
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><DashboardLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="patients" element={<ListingPage entity="Patients" role="Admin" />} />
-          <Route path="appointments" element={<ListingPage entity="Appointments" role="Admin" />} />
+          <Route path="appointments" element={<StaffDashboard entity="Appointments" role="Admin" />} />
+          {/* <Route path="appointments" element={<ListingPage entity="Appointments" role="Admin" />} /> */}
           <Route path="payments" element={<ListingPage entity="Payments" role="Admin" />} />
         </Route>
 
@@ -57,10 +61,11 @@ export default function App() {
         </Route>
 
         {/* Patient Routes */}
-        <Route path="/patient" element={<ProtectedRoute allowedRoles={['Patient']}><DashboardLayout /></ProtectedRoute>}>
+        <Route path="/patient" element={<ProtectedRoute allowedRoles={['Patient']}><PatientLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<PatientDashboard />} />
           <Route path="add-member" element={<AddFamilyMember />} />
           <Route path="make-appointment" element={<MakeAppointment />} />
+          <Route path="confirm-booking" element={<ConfirmBooking />} />
         </Route>
 
         {/* Fallback */}

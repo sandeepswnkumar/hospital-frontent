@@ -32,7 +32,7 @@ export default function AdminDashboard() {
           </Card>
         ))}
       </div>
-      
+
       {/* Placeholder for charts or recent activity */}
       <Card className="border-none shadow-sm">
         <CardHeader>

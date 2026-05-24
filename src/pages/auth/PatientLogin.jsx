@@ -15,7 +15,7 @@ export default function PatientLogin() {
     const [error, setError] = useState('');
     const [timer, setTimer] = useState(30);
     const [canResend, setCanResend] = useState(false);
-
+    const navigate = useNavigate();
     // ─── Refs ───
     const otpRefs = useRef([]);
 
@@ -41,7 +41,8 @@ export default function PatientLogin() {
     const handleSendOtp = (e) => {
         e.preventDefault();
         setError('');
-
+        localStorage.setItem("user", JSON.stringify({ role: "Patient" }))
+        navigate("/patient/dashboard")
         if (!mobileNumber) {
             setError('Please enter your mobile number');
             return;
