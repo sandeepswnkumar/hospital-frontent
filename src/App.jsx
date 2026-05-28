@@ -29,6 +29,7 @@ import PatientLayout from './layouts/PatientLayout';
 import ConfirmBooking from './pages/patient/ConfirmBooking';
 import StaffDashboard from './pages/dashboards/StaffDashboard';
 import AdminPageLayout from './layouts/AdminPageLayout';
+import Patients from './pages/patient/Listing/Patients';
 
 export default function App() {
   return (
@@ -43,7 +44,7 @@ export default function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><AdminPageLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="patients" element={<ListingPage entity="Patients" role="Admin" />} />
+          <Route path="patients" element={<Patients entity="Patients" role="Admin" />} />
           <Route path="appointments" element={<StaffDashboard entity="Appointments" role="Admin" />} />
           {/* <Route path="appointments" element={<ListingPage entity="Appointments" role="Admin" />} /> */}
           <Route path="payments" element={<ListingPage entity="Payments" role="Admin" />} />

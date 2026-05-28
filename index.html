@@ -6,6 +6,25 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>hospitals</title>
+  <script>
+    (function() {
+      try {
+        const storageKey = 'hospital-ui-theme';
+        const defaultTheme = 'dark';
+        const theme = localStorage.getItem(storageKey) || defaultTheme;
+        const root = window.document.documentElement;
+        root.classList.remove('light', 'dark');
+        if (theme === 'system') {
+          const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          root.classList.add(systemTheme);
+        } else {
+          root.classList.add(theme);
+        }
+      } catch (e) {
+        console.error('Error applying theme', e);
+      }
+    })();
+  </script>
 </head>
 
 <body>

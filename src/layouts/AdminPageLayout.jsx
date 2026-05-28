@@ -8,16 +8,19 @@ import PageSidebar from '@/components/sidebar/PageSidebar'
 
 function PageLayout() {
     return (
-        <div className="w-screen h-screen">
-            <SidebarProvider>
+        <div className="w-screen h-screen relative bg-slate-50 dark:bg-[#0f1015] overflow-hidden text-slate-800 dark:text-slate-100 transition-colors duration-300">
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[35rem] h-[35rem] rounded-full bg-blue-500/5 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40rem] h-[40rem] rounded-full bg-teal-500/5 blur-[130px] animate-pulse" style={{ animationDuration: '12s' }} />
+            </div>
+
+            <SidebarProvider className="z-10">
                 <PageSidebar />
-                <SidebarInset className="h-screen">
+                <SidebarInset className="h-screen bg-transparent">
                     <Navbar />
-                    {/* <ProtectedRoute> */}
-                    <div className="flex flex-1 flex-col m-0 p-0 max-h-full">
+                    <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-4 max-h-[calc(100vh-3.5rem)] relative">
                         <Outlet />
                     </div>
-                    {/* </ProtectedRoute> */}
                 </SidebarInset>
             </SidebarProvider>
         </div>

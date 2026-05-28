@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const ThemeContext = createContext(undefined);
 
-export function ThemeProvider({ children, defaultTheme = 'system', storageKey = 'hospital-ui-theme' }) {
+export function ThemeProvider({ children, defaultTheme = 'dark', storageKey = 'hospital-ui-theme' }) {
   const [theme, setTheme] = useState(
     () => localStorage.getItem(storageKey) || defaultTheme
   );

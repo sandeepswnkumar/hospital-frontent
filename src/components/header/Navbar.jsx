@@ -1,7 +1,5 @@
-// import { Separator } from '@radix-ui/react-dropdown-menu'
 import React from 'react'
 import { SidebarTrigger, useSidebar } from '../ui/sidebar'
-// import MainBreadcrumb from './MainBreadcrumb'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
     DropdownMenu,
@@ -11,9 +9,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-// import { useAuth } from '@/Context/AuthContext'
 import { getFirstTwoChars } from '@/lib/helper'
 import ThemeToggle from '@/components/ThemeToggle'
+import { Search, Plus } from 'lucide-react'
 
 const Navbar = () => {
     // const { logout, userInfo } = useAuth()
@@ -21,16 +19,10 @@ const Navbar = () => {
     const { open } = useSidebar()
     return (
         <header
-            className={"border-b dark:border-slate-850 flex h-14 items-center gap-2 z-10 px-4 section-grad-header justify-between"}
-        // className={`fixed top-0  right-0  flex h-16 shrink-0 items-center gap-2  z-10  px-4 section-grad-header justify-between ${open
-        //     ? ' transition-all left-[16rem] duration-[350ms]'
-        //     : 'left-0'
-        //     }`}
+            className="bg-white dark:bg-[#191c24] border-b border-slate-200 dark:border-slate-800/60 flex h-14 items-center gap-2 z-10 px-4 justify-between shrink-0"
         >
-            <div className="flex items-center">
-                <SidebarTrigger className="-ml-1" />
-                {/* <Separator orientation="vertical" className="mr-2 h-4" />
-                <MainBreadcrumb key={window.location.pathname} /> */}
+            <div className="flex items-center gap-2">
+                <SidebarTrigger className="-ml-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" />
             </div>
 
             <div className="flex items-center gap-4">
@@ -38,24 +30,22 @@ const Navbar = () => {
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                         <div className="flex items-center gap-2 cursor-pointer">
-                            <span className="hidden md:inline text-slate-800 dark:text-slate-200">{"Sandeep Gupta"}</span>
-                            {/* <span className="hidden md:inline text-slate-800 dark:text-slate-200">{userInfo?.full_name}</span> */}
-                            <Avatar className="text-sm h-10 w-10">
+                            <span className="hidden md:inline text-slate-700 dark:text-slate-200 font-semibold text-sm">{"Sandeep Gupta"}</span>
+                            <Avatar className="text-sm h-8 w-8 border border-slate-200 dark:border-slate-700">
                                 <AvatarImage src="" className="bg-white " />
-                                <AvatarFallback className="text-black dark:text-white dark:bg-slate-800">
+                                <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white text-xs">
                                     SG
-                                    {/* {getFirstTwoChars(userInfo?.full_name)} */}
                                 </AvatarFallback>
                             </Avatar>
                         </div>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="dark:bg-slate-900 dark:border-slate-850">
-                        <DropdownMenuLabel className="dark:text-slate-200">My Account</DropdownMenuLabel>
-                        <DropdownMenuSeparator className="dark:bg-slate-800" />
-                        <DropdownMenuItem className="dark:text-slate-300 dark:focus:bg-slate-800">Profile</DropdownMenuItem>
-                        <DropdownMenuItem className="dark:text-slate-300 dark:focus:bg-slate-800">Billing</DropdownMenuItem>
-                        <DropdownMenuItem className="dark:text-slate-300 dark:focus:bg-slate-800">Team</DropdownMenuItem>
-                        <DropdownMenuItem className="dark:text-red-400 dark:focus:bg-red-950/20" onClick={() => logout()}>
+                    <DropdownMenuContent className="bg-white dark:bg-[#191c24] border border-slate-200 dark:border-slate-800">
+                        <DropdownMenuLabel className="text-slate-800 dark:text-slate-200">My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
+                        <DropdownMenuItem className="text-slate-600 dark:text-slate-300 focus:bg-slate-100 dark:focus:bg-slate-800 cursor-pointer">Profile</DropdownMenuItem>
+                        <DropdownMenuItem className="text-slate-600 dark:text-slate-300 focus:bg-slate-100 dark:focus:bg-slate-800 cursor-pointer">Billing</DropdownMenuItem>
+                        <DropdownMenuItem className="text-slate-600 dark:text-slate-300 focus:bg-slate-100 dark:focus:bg-slate-800 cursor-pointer">Team</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600 dark:text-red-450 focus:bg-red-50 dark:focus:bg-red-950/20 cursor-pointer" onClick={() => logout()}>
                             Logout
                         </DropdownMenuItem>
                     </DropdownMenuContent>

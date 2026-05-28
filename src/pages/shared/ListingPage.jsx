@@ -110,55 +110,7 @@ export default function ListingPage({ entity = 'Items', role = 'Admin' }) {
     if (action === 'edit') console.log('Edit', row);
     if (action === 'delete') console.log('Delete', row);
   };
-  const columns = [
-    {
-      key: 'patient',
-      label: 'Patient',
-      sortable: true,
-      render: (row) => (
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold text-xs">
-            {row.patient.split(' ').map(n => n[0]).join('')}
-          </div>
-          <div>
-            <p className="font-semibold text-slate-900">{row.patient}</p>
-            <p className="text-xs text-slate-500">{row.age} yrs</p>
-          </div>
-        </div>
-      )
-    },
-    { key: 'doctor', label: 'Doctor', sortable: true },
-    { key: 'dept', label: 'Department', sortable: true },
-    {
-      key: 'time',
-      label: 'Time',
-      sortable: true,
-      render: (row) => (
-        <div>
-          <p className="font-medium text-slate-900">{row.time}</p>
-          <p className="text-xs text-slate-500">{row.date}</p>
-        </div>
-      )
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      sortable: true,
-      render: (row) => {
-        const styles = {
-          pending: 'bg-amber-50 text-amber-700',
-          'checked-in': 'bg-blue-50 text-blue-700',
-          completed: 'bg-green-50 text-green-700',
-          cancelled: 'bg-red-50 text-red-700'
-        };
-        return (
-          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${styles[row.status]}`}>
-            {row.status}
-          </span>
-        );
-      }
-    }
-  ];
+
   return (
     <div className="space-y-6">
       <div>
