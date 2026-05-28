@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -100,7 +101,7 @@ export default function DashboardLayout() {
             </Button>
           </div>
           <div className="flex-1 flex justify-end">
-            {/* Add header items here like notifications */}
+            <ThemeToggle />
           </div>
         </header>
 

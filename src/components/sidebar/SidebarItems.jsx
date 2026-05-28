@@ -4,16 +4,13 @@ import {
     CollapsibleContent,
 } from '@/components/ui/collapsible'
 import {
-    useSidebar,
     SidebarGroup,
     SidebarGroupContent,
     SidebarMenu,
     SidebarMenuSub,
 } from '@/components/ui/sidebar'
-import ParentLabel from './ParentLabel‎'
+import ParentLabel from './ParentLabel'
 import ChildLabel from './ChildLabel'
-// import ParentLabel from './ParentLabel'
-// import ChildLabel from './ChildLabel'
 
 const SidebarItems = ({ items }) => {
     return (

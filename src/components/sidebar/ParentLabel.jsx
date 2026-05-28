@@ -1,10 +1,26 @@
 import React, { useState } from 'react'
-import { ChevronRight } from 'lucide-react'
+import * as Icons from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { CollapsibleTrigger } from '@/components/ui/collapsible'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
 
 const ParentLabel = ({ item }) => {
+    // Dynamic icon resolver
+    const getIcon = () => {
+        if (item.icon && Icons[item.icon]) {
+            return Icons[item.icon];
+        }
+        const titleMap = {
+            'Dashboard': Icons.LayoutDashboard,
+            'Patients': Icons.Users,
+            'Appointments': Icons.Calendar,
+            'Payments': Icons.CreditCard
+        };
+        return titleMap[item.title] || Icons.Stethoscope;
+    };
+
+    const IconComponent = getIcon();
+
     return item.items?.length > 0 ? (
         <SidebarGroupLabel
             asChild
@@ -13,10 +29,13 @@ const ParentLabel = ({ item }) => {
             <CollapsibleTrigger
                 className={`hover:bg-transparent active:bg-transparent flex font-bold justify-between w-full `}
             >
-                <span>{item.title}</span>
+                <span className="flex items-center gap-2">
+                    {IconComponent && <IconComponent className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400 group-hover/label:text-sidebar-accent-foreground" />}
+                    <span>{item.title}</span>
+                </span>
                 <span>
                     {item.items?.length > 0 ? (
-                        <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                        <Icons.ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
                     ) : null}
                 </span>
             </CollapsibleTrigger>
@@ -37,10 +56,13 @@ const ParentLabel = ({ item }) => {
                 <CollapsibleTrigger
                     className={`hover:bg-transparent flex justify-between w-full font-bold active:text-white `}
                 >
-                    <span>{item.title}</span>
+                    <span className="flex items-center gap-2">
+                        {IconComponent && <IconComponent className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400 group-hover/label:text-sidebar-accent-foreground" />}
+                        <span>{item.title}</span>
+                    </span>
                     <span>
                         {item.items?.length > 0 ? (
-                            <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                            <Icons.ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
                         ) : null}
                     </span>
                 </CollapsibleTrigger>

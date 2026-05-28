@@ -6,7 +6,7 @@ import PageSidebar from '@/components/sidebar/PageSidebar'
 // import ProtectedRoute from './ProtectedRoute'
 
 
-function PageLayout({ children }) {
+function PageLayout() {
     return (
         <div className="w-screen h-screen">
             <SidebarProvider>

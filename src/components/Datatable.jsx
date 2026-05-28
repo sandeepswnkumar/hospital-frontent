@@ -165,16 +165,16 @@ export default function DataTable({
     const defaultRender = (row, col) => {
         const value = row[col.key];
         if (col.render) return col.render(row);
-        if (value === null || value === undefined) return <span className="text-slate-400">—</span>;
-        return <span className="text-slate-700">{value}</span>;
+        if (value === null || value === undefined) return <span className="text-slate-400 dark:text-slate-500">—</span>;
+        return <span className="text-slate-700 dark:text-slate-350">{value}</span>;
     };
 
     return (
-        <div className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="p-4 sm:p-6 border-b border-slate-100">
+            <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900">{title}</h2>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">{title}</h2>
 
                     {/* Search */}
                     <div className="relative max-w-md w-full">
@@ -184,13 +184,13 @@ export default function DataTable({
                             value={searchQuery}
                             onChange={(e) => handleSearchChange(e.target.value)}
                             placeholder={searchPlaceholder}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-10 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-10 text-sm text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                             aria-label="Search table data"
                         />
                         {searchQuery && (
                             <button
                                 onClick={() => handleSearchChange('')}
-                                className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                                className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-400"
                                 aria-label="Clear search"
                             >
                                 <X size={16} />
@@ -203,12 +203,12 @@ export default function DataTable({
             {/* Table Container - Horizontal scroll on mobile */}
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[640px]">
-                    <thead className="bg-slate-50 border-b border-slate-200">
+                    <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
                         <tr>
                             {columns.map((col) => (
                                 <th
                                     key={col.key}
-                                    className={`px-4 sm:px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider ${col.sortable ? 'cursor-pointer hover:bg-slate-100 select-none' : ''
+                                    className={`px-4 sm:px-6 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ${col.sortable ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none' : ''
                                         } ${col.width ? '' : 'whitespace-nowrap'}`}
                                     style={col.width ? { width: col.width, minWidth: col.width } : {}}
                                     onClick={() => handleSort(col.key)}
@@ -227,17 +227,17 @@ export default function DataTable({
                                 </th>
                             ))}
                             {/* Actions column */}
-                            <th className="px-4 sm:px-6 py-3.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                            <th className="px-4 sm:px-6 py-3.5 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                                 Actions
                             </th>
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {loading ? (
                             <tr>
                                 <td colSpan={columns.length + 1} className="px-6 py-12 text-center">
-                                    <div className="flex items-center justify-center gap-2 text-slate-500">
+                                    <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
                                         <Loader2 size={20} className="animate-spin" />
                                         <span>Loading...</span>
                                     </div>
@@ -246,7 +246,7 @@ export default function DataTable({
                         ) : data.length === 0 ? (
                             <tr>
                                 <td colSpan={columns.length + 1} className="px-6 py-12 text-center">
-                                    <div className="text-slate-400">
+                                    <div className="text-slate-400 dark:text-slate-500">
                                         <Search size={32} className="mx-auto mb-3 opacity-50" />
                                         <p className="font-medium">No results found</p>
                                         <p className="text-sm mt-1">Try adjusting your search or filters</p>
@@ -258,7 +258,7 @@ export default function DataTable({
                                 <tr
                                     key={row.id || index}
                                     id={`row-${index}`}
-                                    className={`hover:bg-blue-50/50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'
+                                    className={`hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/50 dark:bg-slate-900/50'
                                         }`}
                                     tabIndex={0}
                                     onKeyDown={(e) => handleKeyDown(e, index)}
@@ -277,7 +277,7 @@ export default function DataTable({
                                         <div className="relative inline-block" ref={menuRef}>
                                             <button
                                                 onClick={() => setActionMenuOpen(actionMenuOpen === row.id ? null : row.id)}
-                                                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                                                 aria-label="Open actions menu"
                                                 aria-expanded={actionMenuOpen === row.id}
                                             >
@@ -285,25 +285,25 @@ export default function DataTable({
                                             </button>
 
                                             {actionMenuOpen === row.id && (
-                                                <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-50 py-1">
+                                                <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 z-50 py-1">
                                                     <button
                                                         onClick={() => handleAction('view', row)}
-                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                                                     >
                                                         <Eye size={16} className="text-blue-500" />
                                                         View Details
                                                     </button>
                                                     <button
                                                         onClick={() => handleAction('edit', row)}
-                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                                                     >
                                                         <Edit size={16} className="text-amber-500" />
                                                         Edit
                                                     </button>
-                                                    <div className="border-t border-slate-100 my-1"></div>
+                                                    <div className="border-t border-slate-100 dark:border-slate-800 my-1"></div>
                                                     <button
                                                         onClick={() => handleAction('delete', row)}
-                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
                                                     >
                                                         <Trash2 size={16} />
                                                         Delete
@@ -320,15 +320,15 @@ export default function DataTable({
             </div>
 
             {/* Pagination */}
-            <div className="px-4 sm:px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+            <div className="px-4 sm:px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     {/* Info */}
-                    <p className="text-sm text-slate-500">
-                        Showing <span className="font-semibold text-slate-800">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
-                        <span className="font-semibold text-slate-800">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Showing <span className="font-semibold text-slate-800 dark:text-slate-200">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">
                             {Math.min(pagination.page * pagination.limit, pagination.total)}
                         </span> of{' '}
-                        <span className="font-semibold text-slate-800">{pagination.total}</span> results
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">{pagination.total}</span> results
                     </p>
 
                     {/* Controls */}
@@ -337,7 +337,7 @@ export default function DataTable({
                         <button
                             onClick={() => onPageChange?.(1)}
                             disabled={pagination.page === 1 || loading}
-                            className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             aria-label="First page"
                         >
                             <ChevronsLeft size={18} />
@@ -347,7 +347,7 @@ export default function DataTable({
                         <button
                             onClick={() => onPageChange?.(pagination.page - 1)}
                             disabled={pagination.page === 1 || loading}
-                            className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             aria-label="Previous page"
                         >
                             <ChevronLeft size={18} />
@@ -362,7 +362,7 @@ export default function DataTable({
                                     disabled={loading}
                                     className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${pagination.page === pageNum
                                             ? 'bg-blue-600 text-white shadow-sm'
-                                            : 'text-slate-600 hover:bg-slate-200'
+                                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
                                         }`}
                                     aria-label={`Page ${pageNum}`}
                                     aria-current={pagination.page === pageNum ? 'page' : undefined}
@@ -376,7 +376,7 @@ export default function DataTable({
                         <button
                             onClick={() => onPageChange?.(pagination.page + 1)}
                             disabled={pagination.page === pagination.totalPages || loading}
-                            className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             aria-label="Next page"
                         >
                             <ChevronRight size={18} />
@@ -386,7 +386,7 @@ export default function DataTable({
                         <button
                             onClick={() => onPageChange?.(pagination.totalPages)}
                             disabled={pagination.page === pagination.totalPages || loading}
-                            className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             aria-label="Last page"
                         >
                             <ChevronsRight size={18} />

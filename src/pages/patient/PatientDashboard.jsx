@@ -90,7 +90,7 @@ export default function PatientDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200">
       {renderView()}
     </div>
   );
@@ -110,10 +110,10 @@ function Dashboard({ onNavigate }) {
       {/* Header - Responsive */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <p className="text-slate-500 text-sm font-medium">Welcome back,</p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">John Doe</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Welcome back,</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">John Doe</h1>
         </div>
-        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 dark:bg-blue-950/40 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-450">
           <User size={24} strokeWidth={2.5} />
         </div>
       </div>
@@ -121,12 +121,12 @@ function Dashboard({ onNavigate }) {
       {/* Upcoming Bookings - Horizontal Scroll Carousel */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-800">Upcoming Bookings</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Upcoming Bookings</h2>
           <div className="hidden sm:flex gap-2">
-            <button onClick={() => scroll('left')} className="p-2 rounded-full bg-white shadow-md hover:bg-slate-50 text-slate-600">
+            <button onClick={() => scroll('left')} className="p-2 rounded-full bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors">
               <ChevronLeft size={20} />
             </button>
-            <button onClick={() => scroll('right')} className="p-2 rounded-full bg-white shadow-md hover:bg-slate-50 text-slate-600">
+            <button onClick={() => scroll('right')} className="p-2 rounded-full bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors">
               <ChevronRight size={20} />
             </button>
           </div>
@@ -168,7 +168,7 @@ function Dashboard({ onNavigate }) {
       {/* NEW: Recently Booked Doctors */}
       <RecentlyBookedDoctors />
       {/* Main Grid - Responsive */}
-      <h2 className="text-lg sm:text-xl font-bold text-slate-800 mb-4">Quick Actions</h2>
+      <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-4">Quick Actions</h2>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-auto">
         <ActionCard
           icon={<CalendarPlus size={32} strokeWidth={1.5} />}
@@ -204,7 +204,7 @@ function RecentlyBookedDoctors() {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg sm:text-xl font-bold text-slate-800">Recently Booked Doctors</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Recently Booked Doctors</h2>
       </div>
 
       <div
@@ -214,27 +214,27 @@ function RecentlyBookedDoctors() {
         {RECENT_DOCTORS.map((doctor) => (
           <div
             key={doctor.id}
-            className="min-w-[260px] sm:min-w-[280px] bg-white rounded-3xl p-5 shadow-sm border border-slate-100 snap-start flex-shrink-0 flex flex-col gap-4 hover:shadow-md transition-shadow"
+            className="min-w-[260px] sm:min-w-[280px] bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 snap-start flex-shrink-0 flex flex-col gap-4 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center gap-4">
               <div className={`w-14 h-14 ${doctor.color} rounded-2xl flex items-center justify-center text-white font-bold text-xl`}>
                 {doctor.name.split(' ').map(n => n[0]).join('')}
               </div>
               <div>
-                <h3 className="font-bold text-slate-800 text-base">{doctor.name}</h3>
-                <p className="text-sm text-slate-500">{doctor.specialty}</p>
+                <h3 className="font-bold text-slate-800 dark:text-white text-base">{doctor.name}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{doctor.specialty}</p>
               </div>
             </div>
 
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-1 text-amber-500">
                 <Star size={16} fill="currentColor" />
-                <span className="font-semibold text-slate-700">{doctor.rating}</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">{doctor.rating}</span>
               </div>
-              <span className="text-slate-400">{doctor.visits} visits</span>
+              <span className="text-slate-400 dark:text-slate-500">{doctor.visits} visits</span>
             </div>
 
-            <button className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-blue-50 text-blue-600 font-semibold text-sm hover:bg-blue-100 active:scale-[0.98] transition-all">
+            <button className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:bg-blue-100 dark:hover:bg-blue-900/30 active:scale-[0.98] transition-all">
               <CalendarPlus size={16} />
               Book Again
             </button>
@@ -246,15 +246,23 @@ function RecentlyBookedDoctors() {
 }
 
 function ActionCard({ icon, label, color, onClick, compact }) {
+  const colorMap = {
+    'bg-blue-50 text-blue-600': 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
+    'bg-indigo-50 text-indigo-600': 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400',
+    'bg-teal-50 text-teal-600': 'bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400',
+    'bg-slate-100 text-slate-600': 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
+  };
+  const adaptedColor = colorMap[color] || color;
+
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-start p-5 sm:p-6 rounded-3xl transition-transform active:scale-95 hover:shadow-md border border-transparent hover:border-slate-100 bg-white shadow-sm h-40 sm:h-48 justify-between`}
+      className={`flex flex-col items-start p-5 sm:p-6 rounded-3xl transition-transform active:scale-95 hover:shadow-md border border-transparent hover:border-slate-100 dark:hover:border-slate-800 bg-white dark:bg-slate-900 shadow-sm h-40 sm:h-48 justify-between w-full text-left`}
     >
-      <div className={`p-3 rounded-2xl mb-3 ${color}`}>
+      <div className={`p-3 rounded-2xl mb-3 ${adaptedColor}`}>
         {icon}
       </div>
-      <span className={`font-semibold text-slate-700 leading-tight text-lg sm:text-xl`}>
+      <span className={`font-semibold text-slate-700 dark:text-slate-200 leading-tight text-lg sm:text-xl`}>
         {label}
       </span>
     </button>
@@ -329,42 +337,42 @@ function ActionCard({ icon, label, color, onClick, compact }) {
 
 function BookingHistory({ onBack }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 min-h-screen bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 min-h-screen bg-white dark:bg-slate-950">
       <div className="max-w-2xl mx-auto">
-        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-4">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 mb-4">
           <ChevronLeft size={20} />
           <span className="font-medium">Back</span>
         </button>
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">History</h2>
-        <p className="text-slate-500 mb-6">Your past and upcoming visits</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">History</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">Your past and upcoming visits</p>
 
         <div className="space-y-4">
           {MOCK_HISTORY.map((apt) => (
-            <div key={apt.id} className="bg-white border border-slate-100 p-5 rounded-3xl shadow-sm flex flex-col gap-3">
+            <div key={apt.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 rounded-3xl shadow-sm flex flex-col gap-3">
               <div className="flex justify-between items-start">
                 <div className="flex gap-3">
-                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-500">
+                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 dark:text-slate-400">
                     <Stethoscope size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800">{apt.doctor}</h4>
-                    <p className="text-sm text-slate-500">{apt.specialty}</p>
+                    <h4 className="font-bold text-slate-800 dark:text-white">{apt.doctor}</h4>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{apt.specialty}</p>
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${apt.status === 'upcoming' ? 'bg-blue-100 text-blue-700' :
-                  apt.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${apt.status === 'upcoming' ? 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400' :
+                  apt.status === 'completed' ? 'bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400'
                   }`}>
                   {apt.status.charAt(0).toUpperCase() + apt.status.slice(1)}
                 </span>
               </div>
 
-              <div className="bg-slate-50 p-3 rounded-2xl flex justify-between text-sm text-slate-600">
+              <div className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl flex justify-between text-sm text-slate-600 dark:text-slate-455">
                 <div className="flex items-center gap-2">
-                  <CalendarPlus size={14} className="text-slate-400" />
+                  <CalendarPlus size={14} className="text-slate-400 dark:text-slate-500" />
                   <span>{apt.date}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock size={14} className="text-slate-400" />
+                  <Clock size={14} className="text-slate-400 dark:text-slate-500" />
                   <span>{apt.time}</span>
                 </div>
               </div>
@@ -378,47 +386,47 @@ function BookingHistory({ onBack }) {
 
 function AddPatient({ onBack }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 min-h-screen bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 min-h-screen bg-white dark:bg-slate-950">
       <div className="max-w-2xl mx-auto">
-        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-4">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 mb-4">
           <ChevronLeft size={20} />
           <span className="font-medium">Back</span>
         </button>
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Add Patient</h2>
-        <p className="text-slate-500 mb-6">Register a new family member</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Add Patient</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">Register a new family member</p>
 
-        <div className="w-24 h-24 bg-slate-100 rounded-full mx-auto flex items-center justify-center text-slate-400 mb-4 border-4 border-white shadow-lg">
+        <div className="w-24 h-24 bg-slate-100 dark:bg-slate-900 rounded-full mx-auto flex items-center justify-center text-slate-400 dark:text-slate-500 mb-4 border-4 border-white dark:border-slate-800 shadow-lg">
           <UserPlus size={40} />
         </div>
 
         <div className="space-y-5">
           <div className="space-y-1">
-            <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
-            <input type="text" className="w-full bg-slate-50 p-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-lg" placeholder="e.g. Jane Doe" />
+            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Full Name</label>
+            <input type="text" className="w-full bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-lg text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="e.g. Jane Doe" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-bold text-slate-700 ml-1">Age</label>
-              <input type="number" className="w-full bg-slate-50 p-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-lg" placeholder="Years" />
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Age</label>
+              <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-lg text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="Years" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-bold text-slate-700 ml-1">Gender</label>
-              <select className="w-full bg-slate-50 p-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-lg text-slate-600">
-                <option>Select</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Other</option>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Gender</label>
+              <select className="w-full bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-lg text-slate-600 dark:text-slate-300">
+                <option className="dark:bg-slate-900">Select</option>
+                <option className="dark:bg-slate-900">Male</option>
+                <option className="dark:bg-slate-900">Female</option>
+                <option className="dark:bg-slate-900">Other</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-bold text-slate-700 ml-1">Relationship</label>
-            <input type="text" className="w-full bg-slate-50 p-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-lg" placeholder="e.g. Spouse, Child" />
+            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Relationship</label>
+            <input type="text" className="w-full bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-lg text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="e.g. Spouse, Child" />
           </div>
 
-          <button className="w-full mt-4 bg-teal-500 text-white font-bold py-4 rounded-2xl shadow-lg shadow-teal-200 active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+          <button className="w-full mt-4 bg-teal-500 text-white font-bold py-4 rounded-2xl shadow-lg shadow-teal-200 dark:shadow-teal-950/20 active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
             <CheckCircle2 size={20} />
             Save Patient
           </button>
@@ -430,22 +438,22 @@ function AddPatient({ onBack }) {
 
 function ProfileSettings({ onBack }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 min-h-screen bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 min-h-screen bg-white dark:bg-slate-950">
       <div className="max-w-2xl mx-auto">
-        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-4">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 mb-4">
           <ChevronLeft size={20} />
           <span className="font-medium">Back</span>
         </button>
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Settings</h2>
-        <p className="text-slate-500 mb-6">Manage your account</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Settings</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">Manage your account</p>
 
-        <div className="flex items-center gap-4 mb-8 p-4 bg-slate-50 rounded-3xl">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+        <div className="flex items-center gap-4 mb-8 p-4 bg-slate-50 dark:bg-slate-900 rounded-3xl">
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-950/40 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
             <User size={32} />
           </div>
           <div>
-            <h3 className="font-bold text-lg text-slate-800">John Doe</h3>
-            <p className="text-slate-500 text-sm">john.doe@example.com</p>
+            <h3 className="font-bold text-lg text-slate-800 dark:text-white">John Doe</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">john.doe@example.com</p>
           </div>
         </div>
 
@@ -456,7 +464,7 @@ function ProfileSettings({ onBack }) {
           <SettingItem icon={<MapPin size={20} />} label="Saved Addresses" />
 
           <div className="pt-6">
-            <button className="w-full py-4 rounded-2xl border border-red-100 text-red-500 font-bold hover:bg-red-50 transition-colors">
+            <button className="w-full py-4 rounded-2xl border border-red-100 dark:border-red-900/30 text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
               Log Out
             </button>
           </div>
@@ -468,17 +476,17 @@ function ProfileSettings({ onBack }) {
 
 function SettingItem({ icon, label, toggle }) {
   return (
-    <div className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 cursor-pointer active:scale-[0.99] transition-all">
-      <div className="flex items-center gap-4 text-slate-700">
-        <div className="text-slate-400">{icon}</div>
+    <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer active:scale-[0.99] transition-all">
+      <div className="flex items-center gap-4 text-slate-700 dark:text-slate-300">
+        <div className="text-slate-400 dark:text-slate-500">{icon}</div>
         <span className="font-medium">{label}</span>
       </div>
       {toggle ? (
-        <div className="w-12 h-7 bg-blue-500 rounded-full relative">
-          <div className="absolute right-1 top-1 w-5 h-5 bg-white rounded-full shadow-sm"></div>
+        <div className="w-12 h-7 bg-blue-500 dark:bg-blue-600 rounded-full relative">
+          <div className="absolute right-1 top-1 w-5 h-5 bg-white dark:bg-slate-350 rounded-full shadow-sm"></div>
         </div>
       ) : (
-        <ChevronLeft className="rotate-180 text-slate-400" size={18} />
+        <ChevronLeft className="rotate-180 text-slate-400 dark:text-slate-500" size={18} />
       )}
     </div>
   );

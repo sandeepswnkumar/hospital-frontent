@@ -20,7 +20,7 @@ const PageSidebar = (props) => {
                         <SidebarMenuButton size="lg" className="hover:bg-transparent active:bg-transparent" asChild>
                             <Link to="/" className="flex justify-center">
                                 <img
-                                    src={assets.images.adminLoginBg}
+                                    src={assets.images.medicareLogo}
                                     alt="Logo"
                                     className="w-36"
                                 />

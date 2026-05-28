@@ -28,20 +28,20 @@ import MakeAppointment from './pages/patient/MakeAppointment';
 import PatientLayout from './layouts/PatientLayout';
 import ConfirmBooking from './pages/patient/ConfirmBooking';
 import StaffDashboard from './pages/dashboards/StaffDashboard';
-import PageLayout from './layouts/AdminPageLayout';
+import AdminPageLayout from './layouts/AdminPageLayout';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/page" element={<PageLayout />} />
+        <Route path="/page" element={<AdminPageLayout />} />
         <Route path="/" element={<Navigate to="/patient-login" replace />} />
         <Route path="/patient-login" element={<PatientLogin />} />
         <Route path="/staff-login" element={<StaffLogin />} />
 
         {/* Admin Routes */}
-        <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><DashboardLayout /></ProtectedRoute>}>
+        <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><AdminPageLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="patients" element={<ListingPage entity="Patients" role="Admin" />} />
           <Route path="appointments" element={<StaffDashboard entity="Appointments" role="Admin" />} />
