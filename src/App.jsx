@@ -28,12 +28,14 @@ import MakeAppointment from './pages/patient/MakeAppointment';
 import PatientLayout from './layouts/PatientLayout';
 import ConfirmBooking from './pages/patient/ConfirmBooking';
 import StaffDashboard from './pages/dashboards/StaffDashboard';
+import PageLayout from './layouts/AdminPageLayout';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
+        <Route path="/page" element={<PageLayout />} />
         <Route path="/" element={<Navigate to="/patient-login" replace />} />
         <Route path="/patient-login" element={<PatientLogin />} />
         <Route path="/staff-login" element={<StaffLogin />} />

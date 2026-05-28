@@ -185,7 +185,7 @@ export default function ListingPage({ entity = 'Items', role = 'Admin' }) {
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          {/* <DataTable
+          <DataTable
             columns={columns}
             data={data}
             pagination={pagination}
@@ -196,8 +196,8 @@ export default function ListingPage({ entity = 'Items', role = 'Admin' }) {
             loading={loading}
             title="Appointments"
             searchPlaceholder="Search patients, doctors..."
-          /> */}
-          <div className="rounded-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+          />
+          {/* <div className="rounded-md border border-slate-200 dark:border-slate-800 overflow-hidden">
             <Table>
               <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                 <TableRow>
@@ -253,10 +253,10 @@ export default function ListingPage({ entity = 'Items', role = 'Admin' }) {
                 )}
               </TableBody>
             </Table>
-          </div>
+          </div> */}
 
           {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-4 text-center sm:text-left">
+          {/* <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-4 text-center sm:text-left">
             <p className="text-sm text-slate-500">
               Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} entries
             </p>
@@ -279,7 +279,7 @@ export default function ListingPage({ entity = 'Items', role = 'Admin' }) {
                 Next
               </Button>
             </div>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>
