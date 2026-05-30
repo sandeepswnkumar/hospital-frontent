@@ -14,7 +14,7 @@ const ChildLabel = ({ item }) => {
             }
         >
             <SidebarMenuSubItem key={item.title}>
-                <SidebarMenuSubButton asChild className="hover:bg-transparent active:bg-transparent hover:text-white active:text-white font-bold">
+                <SidebarMenuSubButton asChild className="text-white/85 hover:bg-white/10 active:bg-white/10 hover:text-white active:text-white font-bold">
                     <span>{item.title}</span>
                 </SidebarMenuSubButton>
             </SidebarMenuSubItem>

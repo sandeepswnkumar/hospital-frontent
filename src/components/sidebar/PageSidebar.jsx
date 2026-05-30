@@ -15,7 +15,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const PageSidebar = (props) => {
     return (
-        <Sidebar {...props} className="border-r border-slate-200 dark:border-slate-800/40">
+        <Sidebar
+            {...props}
+            className="border-r border-purple-300/30 dark:border-purple-400/20 bg-[#4c266a] [&_[data-sidebar=sidebar]]:bg-[#4c266a]"
+        >
             <SidebarHeader className="bg-transparent px-4 py-4">
                 <SidebarMenu>
                     <SidebarMenuItem className="mb-4">
@@ -52,7 +55,7 @@ const PageSidebar = (props) => {
                 </div> */}
             </SidebarHeader>
             <SidebarContent className="overflow-card-scroll-sidebar">
-                <div className="px-4 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-left">Navigation</div>
+                <div className="px-4 py-2 text-xs font-bold text-blue-100/80 uppercase tracking-wider text-left">Navigation</div>
                 <SidebarItems items={assets.data.SidebarMenu} />
             </SidebarContent>
         </Sidebar>

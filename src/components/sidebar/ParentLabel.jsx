@@ -24,12 +24,12 @@ const ParentLabel = ({ item }) => {
     // Custom colored circle styling mapping
     const getIconContainerStyle = () => {
         const styles = {
-            'Dashboard': 'bg-blue-500/15 text-blue-500 dark:text-blue-400',
-            'Patients': 'bg-amber-500/15 text-amber-500 dark:text-amber-400',
-            'Appointments': 'bg-emerald-500/15 text-emerald-500 dark:text-emerald-400',
-            'Payments': 'bg-red-500/15 text-red-500 dark:text-red-400'
+            'Dashboard': 'bg-white/15 text-white',
+            'Patients': 'bg-amber-300/20 text-amber-200',
+            'Appointments': 'bg-emerald-300/20 text-emerald-200',
+            'Payments': 'bg-rose-300/20 text-rose-200'
         };
-        return styles[item.title] || 'bg-teal-500/15 text-teal-500 dark:text-teal-400';
+        return styles[item.title] || 'bg-cyan-300/20 text-cyan-200';
     };
 
     const containerStyle = getIconContainerStyle();
@@ -37,7 +37,7 @@ const ParentLabel = ({ item }) => {
     return item.items?.length > 0 ? (
         <SidebarGroupLabel
             asChild
-            className="group/label text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            className="group/label text-sm text-white hover:bg-white/10 hover:text-white"
         >
             <CollapsibleTrigger
                 className={`hover:bg-transparent active:bg-transparent flex font-bold justify-between items-center w-full `}
@@ -48,11 +48,11 @@ const ParentLabel = ({ item }) => {
                             <IconComponent className="w-4 h-4" />
                         </div>
                     )}
-                    <span className="text-slate-650 dark:text-slate-300 group-hover/label:text-slate-900 dark:group-hover/label:text-white transition-colors">{item.title}</span>
+                    <span className="text-white group-hover/label:text-white transition-colors">{item.title}</span>
                 </span>
                 <span>
                     {item.items?.length > 0 ? (
-                        <Icons.ChevronRight className="ml-auto w-4 h-4 text-slate-450 dark:text-slate-500 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                        <Icons.ChevronRight className="ml-auto w-4 h-4 text-white/70 transition-transform group-data-[state=open]/collapsible:rotate-90" />
                     ) : null}
                 </span>
             </CollapsibleTrigger>
@@ -62,13 +62,13 @@ const ParentLabel = ({ item }) => {
             to={item.url}
             className={({ isActive }) => {
                 return isActive && item.items?.length == 0
-                    ? 'bg-slate-100 dark:bg-[#0f1015] rounded-xl block border-l-4 border-blue-500'
+                    ? 'bg-white/15 rounded-xl block border-l-4 border-white'
                     : 'block'
             }}
         >
             <SidebarGroupLabel
                 asChild
-                className="group/label text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                className="group/label text-sm text-white hover:bg-white/10 hover:text-white"
             >
                 <CollapsibleTrigger
                     className={`hover:bg-transparent flex justify-between items-center w-full font-bold active:text-white `}
@@ -79,11 +79,11 @@ const ParentLabel = ({ item }) => {
                                 <IconComponent className="w-4 h-4" />
                             </div>
                         )}
-                        <span className="text-slate-650 dark:text-slate-300 group-hover/label:text-slate-900 dark:group-hover/label:text-white transition-colors">{item.title}</span>
+                        <span className="text-white group-hover/label:text-white transition-colors">{item.title}</span>
                     </span>
                     <span>
                         {item.items?.length > 0 ? (
-                            <Icons.ChevronRight className="ml-auto w-4 h-4 text-slate-450 dark:text-slate-500 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                            <Icons.ChevronRight className="ml-auto w-4 h-4 text-white/70 transition-transform group-data-[state=open]/collapsible:rotate-90" />
                         ) : null}
                     </span>
                 </CollapsibleTrigger>
