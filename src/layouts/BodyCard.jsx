@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card"
 
-function BodyCard({ children }) {
+function BodyCard({ className, children }) {
     return (
-        <Card className="border-none  p-0">
-            <CardContent className="px-0 py-4">
+        <Card className="border-none p-0 m-0 h-full">
+            <CardContent className={` h-full p-1 m-0 ${className}`}>
                 {children}
             </CardContent>
         </Card>

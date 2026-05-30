@@ -82,7 +82,7 @@ export default function AddFamilyMember() {
 
             <div className="flex justify-end space-x-4 pt-4 border-t border-slate-100 dark:border-slate-800">
               <Button type="button" variant="outline" onClick={() => navigate('/patient/dashboard')}>Cancel</Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Save Member</Button>
+              <Button type="submit">Save Member</Button>
             </div>
           </form>
         </CardContent>

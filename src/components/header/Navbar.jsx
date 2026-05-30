@@ -12,12 +12,12 @@ import {
 import { getFirstTwoChars } from '@/lib/helper'
 import ThemeToggle from '@/components/ThemeToggle'
 
-const Navbar = () => {
+const Navbar = ({ className = "" }) => {
     // const { logout, userInfo } = useAuth()
     const logout = () => { }
     return (
         <header
-            className="bg-white/90 dark:bg-slate-950/90 border-b border-blue-200/70 dark:border-purple-400/20 shadow-sm shadow-blue-950/5 backdrop-blur flex h-14 items-center gap-2 z-10 px-4 justify-between shrink-0"
+            className={`${className} bg-white/90 dark:bg-slate-950/90 border-b border-blue-200/70 dark:border-purple-400/20 shadow-sm shadow-blue-950/5 backdrop-blur flex items-center gap-2 z-10 px-4 justify-between shrink-0`}
         >
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1 text-blue-700 hover:bg-blue-50 hover:text-purple-700 dark:text-blue-100 dark:hover:bg-white/10 dark:hover:text-white" />

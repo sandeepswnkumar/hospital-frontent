@@ -17,8 +17,8 @@ function PageLayout() {
             <SidebarProvider className="z-10">
                 <PageSidebar />
                 <SidebarInset className="h-screen bg-transparent">
-                    <Navbar />
-                    <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-4 max-h-[calc(100vh-3.5rem)] relative">
+                    <Navbar className="h-14" />
+                    <div className="flex flex-col flex-1 overflow-y-auto p-2 gap-3 sm:p-3 lg:p-3 max-h-[calc(100vh - h-14)] relative">
                         <Outlet />
                     </div>
                 </SidebarInset>

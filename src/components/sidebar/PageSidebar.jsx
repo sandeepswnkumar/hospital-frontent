@@ -17,7 +17,7 @@ const PageSidebar = (props) => {
     return (
         <Sidebar
             {...props}
-            className="border-r border-purple-300/30 dark:border-purple-400/20 bg-[#4c266a] [&_[data-sidebar=sidebar]]:bg-[#4c266a]"
+            className="border-r border-blue-900/20 dark:border-blue-950/40"
         >
             <SidebarHeader className="bg-transparent px-4 py-4">
                 <SidebarMenu>

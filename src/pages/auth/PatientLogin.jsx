@@ -1,11 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Stethoscope } from 'lucide-react';
-import { assets } from '@/assets/assets'
+import { assets } from '@/assets/assets';
 
 export default function PatientLogin() {
     // ─── State ───
@@ -21,16 +16,36 @@ export default function PatientLogin() {
 
     // ─── Timer Effect ───
     useEffect(() => {
-        let interval;
-        if (step === 'otp' && timer > 0) {
-            interval = setInterval(() => {
-                setTimer((prev) => prev - 1);
-            }, 1000);
-        } else if (timer === 0) {
-            setCanResend(true);
-        }
+        if (step !== 'otp' || timer <= 0) return;
+
+        const interval = setInterval(() => {
+            setTimer((prev) => {
+                if (prev <= 1) {
+                    setCanResend(true);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
         return () => clearInterval(interval);
     }, [step, timer]);
+
+    // ─── Auto-redirect if already logged in ───
+    useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                if (user.role === 'Patient') navigate('/patient/dashboard', { replace: true });
+                else if (user.role === 'Admin') navigate('/admin/dashboard', { replace: true });
+                else if (user.role === 'Doctor') navigate('/doctor/dashboard', { replace: true });
+                else if (user.role === 'Staff') navigate('/staff/dashboard', { replace: true });
+            } catch (err) {
+                console.error("Failed to parse user role", err);
+            }
+        }
+    }, [navigate]);
 
     // ─── Handlers ───
     const validateMobile = (number) => {
@@ -41,8 +56,6 @@ export default function PatientLogin() {
     const handleSendOtp = (e) => {
         e.preventDefault();
         setError('');
-        localStorage.setItem("user", JSON.stringify({ role: "Patient" }))
-        navigate("/patient/dashboard")
         if (!mobileNumber) {
             setError('Please enter your mobile number');
             return;
@@ -116,7 +129,8 @@ export default function PatientLogin() {
 
         setStep('loading');
         setTimeout(() => {
-            onLoginSuccess?.({ mobileNumber, role: 'patient' });
+            localStorage.setItem("user", JSON.stringify({ role: "Patient", mobileNumber }));
+            navigate("/patient/dashboard", { replace: true });
         }, 1500);
     };
 
@@ -126,34 +140,7 @@ export default function PatientLogin() {
         setError('');
     };
 
-    // ─── Icons ───
-    const HeartPulseIcon = () => (
-        <svg className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-        </svg>
-    );
 
-    const ErrorIcon = () => (
-        <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-    );
-
-    const ArrowRightIcon = () => (
-        <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-        </svg>
-    );
-
-    const ArrowLeftIcon = () => (
-        <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-        </svg>
-    );
 
     // ─── Render ───
     return (
@@ -306,3 +293,32 @@ export default function PatientLogin() {
         </div>
     );
 }
+
+// ─── Icons ───
+const HeartPulseIcon = () => (
+    <svg className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+);
+
+const ErrorIcon = () => (
+    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+);
+
+const ArrowRightIcon = () => (
+    <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12" />
+        <polyline points="12 5 19 12 12 19" />
+    </svg>
+);
+
+const ArrowLeftIcon = () => (
+    <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+    </svg>
+);

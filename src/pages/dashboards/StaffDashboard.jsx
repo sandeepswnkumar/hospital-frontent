@@ -13,6 +13,7 @@ import {
     ChevronRight,
     Filter
 } from 'lucide-react';
+import StatusBadge from '@/components/ui/status-badge';
 
 const MOCK_APPOINTMENTS = [
     { id: '1', patient: 'Ravi Kumar', age: 45, phone: '+91 98765 43210', time: '09:00', doctor: 'Dr. Sharma', dept: 'Cardiology', room: '302-A', status: 'checked-in', type: 'Follow-up', date: '2026-05-24' },
@@ -199,10 +200,7 @@ export default function AppointmentsManager() {
                                     <p className="text-xs text-slate-500">{apt.date}</p>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${STATUS_STYLES[apt.status].bg} ${STATUS_STYLES[apt.status].text}`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${STATUS_STYLES[apt.status].dot}`}></span>
-                                        {STATUS_STYLES[apt.status].label}
-                                    </span>
+                                    <StatusBadge status={apt.status} size="md" />
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${TYPE_STYLES[apt.type]}`}>
@@ -296,9 +294,7 @@ function MobileCard({ apt, onAction, onSelect }) {
                         <p className="text-sm text-slate-500">{apt.age} yrs • {apt.dept}</p>
                     </div>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${status.bg} ${status.text}`}>
-                    {status.label}
-                </span>
+                <StatusBadge status={apt.status} size="md" />
             </div>
 
             <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
@@ -370,10 +366,7 @@ function DetailModal({ apt, onClose, onAction }) {
                         </div>
                     </div>
 
-                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${status.bg} ${status.text} font-bold text-sm`}>
-                        <span className={`w-2 h-2 rounded-full ${status.dot}`}></span>
-                        {status.label}
-                    </div>
+                    <StatusBadge status={apt.status} size="md" className="px-4 py-2 text-sm font-bold" />
 
                     <div className="grid grid-cols-2 gap-3">
                         <DetailItem icon={<Clock size={16} />} label="Time" value={apt.time} />
