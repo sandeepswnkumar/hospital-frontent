@@ -36,9 +36,9 @@ import Offline from './pages/shared/Offline';
 import Hospitals from './pages/Hospital/Listing/Hospitals';
 import CreateHospital from './pages/Hospital/CreateHospital';
 import EditHospital from './pages/Hospital/EditHospital';
-import Doctors from './pages/Doctor/Listing/Doctors';
-import CreateDoctor from './pages/Doctor/CreateDoctor';
-import EditDoctor from './pages/Doctor/EditDoctor';
+import Doctors from './pages/doctor/Listing/Doctors';
+import CreateDoctor from './pages/doctor/CreateDoctor';
+import EditDoctor from './pages/doctor/EditDoctor';
 
 // Dynamic landing page redirect based on role
 const RootRedirect = () => {
