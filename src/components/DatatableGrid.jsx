@@ -36,7 +36,7 @@ const DatatableGrid = ({
                     return (
                         <div
                             key={row.id}
-                            className="p-4 rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-[#1f222b] shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-3"
+                            className="p-4 rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-[#1f222b] shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-3 h-fit"
                         >
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">

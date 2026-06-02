@@ -3,23 +3,23 @@ import { getCall, postCall, putCall, deleteCall } from "../Axios"
 class DoctorService {
 
     static async createDoctor(data) {
-        return await postCall("/doctors", data)
+        return await postCall("/api/doctor", data)
     }
 
     static async getDoctors(filters) {
-        return await getCall("/doctors", filters)
+        return await getCall("/api/doctor", filters)
     }
 
     static async getDoctorById(id) {
-        return await getCall(`/doctors/${id}`)
+        return await getCall(`/api/doctor/${id}`)
     }
 
     static async updateDoctor(id, data) {
-        return await putCall(`/doctors/${id}`, data)
+        return await putCall(`/api/doctor/${id}`, data)
     }
 
     static async deleteDoctor(id) {
-        return await deleteCall(`/doctors/${id}`)
+        return await deleteCall(`/api/doctor/${id}`)
     }
 
 }

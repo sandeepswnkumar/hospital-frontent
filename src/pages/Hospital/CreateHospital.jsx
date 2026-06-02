@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Card,
     CardContent,
@@ -35,6 +35,13 @@ import {
     Save,
     X
 } from "lucide-react";
+import HeaderCard from "@/layouts/HeaderCard";
+import CardWithTitle from "@/layouts/CardWithTitle";
+import FieldWrapper from "@/components/FieldWrapper";
+import { useMasterData } from "@/context/MasterDataContext";
+import { getCity } from "@/services/CommonApiCall";
+import HospitalService from "@/services/HospitalService";
+import { useNavigate } from "react-router-dom";
 
 // Types
 // interface HospitalFormData {
@@ -49,7 +56,7 @@ import {
 //   address: string;
 //   city: string;
 //   state: string;
-//   zipCode: string;
+//   pinCode: string;
 //   country: string;
 //   description: string;
 //   specialties: string[];
@@ -69,110 +76,88 @@ import {
 //   accreditation: string;
 // }
 
-const SPECIALTIES = [
-    "Cardiology",
-    "Neurology",
-    "Orthopedics",
-    "Pediatrics",
-    "Oncology",
-    "Radiology",
-    "Dermatology",
-    "Psychiatry",
-    "Emergency Medicine",
-    "General Surgery",
-    "Internal Medicine",
-    "Obstetrics & Gynecology",
-    "Ophthalmology",
-    "Urology",
-    "Pulmonology",
-    "Nephrology",
-    "Gastroenterology",
-    "Endocrinology",
-    "Rheumatology",
-    "Infectious Disease"
-];
-
-const HOSPITAL_TYPES = [
-    "General Hospital",
-    "Specialty Hospital",
-    "Teaching Hospital",
-    "Children's Hospital",
-    "Psychiatric Hospital",
-    "Rehabilitation Center",
-    "Clinic",
-    "Trauma Center",
-    "Community Hospital",
-    "Research Hospital"
-];
-
-const ACCREDITATIONS = [
-    "JCI (Joint Commission International)",
-    "ISO 9001",
-    "NABH (India)",
-    "CAP (College of American Pathologists)",
-    "HIMSS Stage 7",
-    "Magnet Recognition",
-    "Leapfrog Grade A",
-    "Local Health Authority",
-    "None"
-];
-
 export default function CreateHospital() {
+    const { facilities = [], hospitalTypes = [], specialties = [], cities = [], states = [], countries = [] } = useMasterData();
+
     const [formData, setFormData] = useState({
         name: "",
+        registrationNumber: "",
         legalName: "",
-        type: "",
-        status: "active",
+        typeId: "",
+        statusId: "1",
         email: "",
         phone: "",
         emergencyPhone: "",
         website: "",
-        address: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        country: "",
+        address1: "",
+        address2: "",
+        cityId: "",
+        stateId: "",
+        pinCode: "",
+        countryId: "",
         description: "",
         specialties: [],
+        facilities: [],
         operatingHours: {
-            monday: "08:00 - 18:00",
-            tuesday: "08:00 - 18:00",
-            wednesday: "08:00 - 18:00",
-            thursday: "08:00 - 18:00",
-            friday: "08:00 - 18:00",
-            saturday: "09:00 - 14:00",
+            monday: "08:00 AM - 06:00 PM",
+            tuesday: "08:00 AM - 06:00 PM",
+            wednesday: "08:00 AM - 06:00 PM",
+            thursday: "08:00 AM - 06:00 PM",
+            friday: "08:00 AM - 06:00 PM",
+            saturday: "09:00 AM - 02:00 PM",
             sunday: "Closed"
         },
-        hasEmergency: false,
-        hasICU: false,
-        hasPharmacy: false,
-        bedCapacity: 0,
-        accreditation: ""
+        bedCapacity: 0
     });
 
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
-
+    const navigate = useNavigate()
     const handleInputChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData(prev => {
+            const next = { ...prev, [field]: value };
+            if (field === "countryId") {
+                next.stateId = "";
+                next.cityId = "";
+            } else if (field === "stateId") {
+                next.cityId = "";
+            }
+            return next;
+        });
+
         // Clear error when user types
         if (errors[field]) {
             setErrors(prev => {
                 const newErrors = { ...prev };
                 delete newErrors[field];
+                // Also clear dependent errors
+                if (field === "countryId") {
+                    delete newErrors.stateId;
+                    delete newErrors.cityId;
+                } else if (field === "stateId") {
+                    delete newErrors.cityId;
+                }
                 return newErrors;
             });
         }
     };
+    const filteredStates = formData.countryId
+        ? states.filter(s => s.country?.id === parseInt(formData.countryId))
+        : [];
+
+    const filteredCities = formData.stateId
+        ? cities.filter(c => c.state?.id === parseInt(formData.stateId))
+        : [];
 
     const handleSpecialtyToggle = (specialty) => {
-        setFormData(prev => ({
-            ...prev,
-            specialties: prev.specialties.includes(specialty)
-                ? prev.specialties.filter(s => s !== specialty)
-                : [...prev.specialties, specialty]
-        }));
+        setFormData(prev => {
+            const current = prev.specialties;
+            const updated = current.some(s => s.id === specialty.id)
+                ? current.filter(s => s.id !== specialty.id)
+                : [...current, { id: specialty.id, name: specialty.name }];
+            return { ...prev, specialties: updated };
+        });
     };
 
     const handleHoursChange = (day, value) => {
@@ -190,17 +175,18 @@ export default function CreateHospital() {
 
         if (!formData.name.trim()) newErrors.name = "Hospital name is required";
         if (!formData.legalName.trim()) newErrors.legalName = "Legal name is required";
-        if (!formData.type) newErrors.type = "Hospital type is required";
+        if (!formData.registrationNumber.trim()) newErrors.registrationNumber = "Registration Number is required";
+        if (!formData.typeId) newErrors.typeId = "Hospital type is required";
         if (!formData.email.trim()) {
             newErrors.email = "Email is required";
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = "Invalid email format";
         }
         if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
-        if (!formData.address.trim()) newErrors.address = "Address is required";
-        if (!formData.city.trim()) newErrors.city = "City is required";
-        if (!formData.state.trim()) newErrors.state = "State/Province is required";
-        if (!formData.country.trim()) newErrors.country = "Country is required";
+        if (!formData.address1.trim()) newErrors.address1 = "Address is required";
+        if (!formData.cityId) newErrors.cityId = "City is required";
+        if (!formData.stateId) newErrors.stateId = "State/Province is required";
+        if (!formData.countryId) newErrors.countryId = "Country is required";
         if (formData.bedCapacity < 0) newErrors.bedCapacity = "Bed capacity cannot be negative";
 
         setErrors(newErrors);
@@ -210,15 +196,20 @@ export default function CreateHospital() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-
         setIsSubmitting(true);
         // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            console.log("formdata", formData)
+            const resp = await HospitalService.createHospital(formData);
+            if (resp.success) navigate("/admin/hospitals")
+            console.log("resp == ", resp)
+        } catch (err) { }
+        // await new Promise(resolve => setTimeout(resolve, 1500));
         setIsSubmitting(false);
-        setShowSuccess(true);
+        // setShowSuccess(true);
 
         // Reset after showing success
-        setTimeout(() => setShowSuccess(false), 3000);
+        // setTimeout(() => setShowSuccess(false), 3000);
     };
 
     const handleCancel = () => {
@@ -228,71 +219,53 @@ export default function CreateHospital() {
         }
     };
 
-    return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-            {/* Success Toast */}
-            {showSuccess && (
-                <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2 fade-in duration-300">
-                    <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                        <span className="font-medium">Hospital created successfully!</span>
-                    </div>
-                </div>
-            )}
+    // useEffect(() => {
+    //     getCity()
+    // }, [])
 
-            <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-                {/* Header */}
-                <div className="mb-8 flex items-center justify-between">
-                    <div>
-                        <Button
-                            variant="ghost"
-                            className="mb-2 -ml-4 text-slate-600 hover:text-slate-900"
-                            onClick={handleCancel}
-                        >
-                            <ChevronLeft className="mr-1 h-4 w-4" />
-                            Back to Hospitals
-                        </Button>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-                            Create New Hospital
-                        </h1>
-                        <p className="mt-1 text-slate-500 dark:text-slate-400">
-                            Register a new healthcare facility in the system
-                        </p>
-                    </div>
-                    <div className="flex gap-3">
+    return (
+        <>
+            <HeaderCard >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <h1 className="text-xl font-semibold text-slate-800 dark:text-white">Create New Hospital</h1>
+                    <div className="flex items-center gap-2 sm:gap-3">
                         <Button
                             variant="outline"
                             onClick={handleCancel}
-                            className="hidden sm:flex"
+                            iconType="ChevronLeft"
+                            size="sm"
+                            className="sm:h-9"
                         >
-                            <X className="mr-2 h-4 w-4" />
-                            Cancel
+                            <span className="hidden sm:inline">Back</span>
                         </Button>
                         <Button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                            iconType={isSubmitting ? "Loader2" : "Save"}
+                            size="sm"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white sm:h-9"
                         >
-                            <Save className="mr-2 h-4 w-4" />
                             {isSubmitting ? "Creating..." : "Create Hospital"}
                         </Button>
                     </div>
                 </div>
+            </HeaderCard>
+            <div>
+                {/* Success Toast */}
+                {showSuccess && (
+                    <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2 fade-in duration-300">
+                        <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
+                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                            <span className="font-medium">Hospital created successfully!</span>
+                        </div>
+                    </div>
+                )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Basic Information */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <Building2 className="h-5 w-5 text-emerald-600" />
-                                Basic Information
-                            </CardTitle>
-                            <CardDescription>
-                                Essential details about the hospital facility
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid gap-6 sm:grid-cols-2">
-                            <div className="space-y-2 sm:col-span-2">
+                <div className="w-full">
+                    <form onSubmit={handleSubmit} className=" flex flex-col gap-3 ">
+                        {/* Basic Information */}
+                        <CardWithTitle title="Basic Information" contentClass="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <FieldWrapper>
                                 <Label htmlFor="name">
                                     Hospital Name <span className="text-red-500">*</span>
                                 </Label>
@@ -308,9 +281,27 @@ export default function CreateHospital() {
                                         <AlertCircle className="h-3 w-3" /> {errors.name}
                                     </p>
                                 )}
-                            </div>
+                            </FieldWrapper>
 
-                            <div className="space-y-2 sm:col-span-2">
+                            <FieldWrapper>
+                                <Label htmlFor="registrationNumber">
+                                    Registration Number <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="registrationNumber"
+                                    placeholder="e.g., 123456789"
+                                    value={formData.registrationNumber}
+                                    onChange={(e) => handleInputChange("registrationNumber", e.target.value)}
+                                    className={errors.registrationNumber ? "border-red-500 focus-visible:ring-red-500" : ""}
+                                />
+                                {errors.registrationNumber && (
+                                    <p className="text-sm text-red-500 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" /> {errors.registrationNumber}
+                                    </p>
+                                )}
+                            </FieldWrapper>
+
+                            <FieldWrapper>
                                 <Label htmlFor="legalName">
                                     Legal/Registered Name <span className="text-red-500">*</span>
                                 </Label>
@@ -326,56 +317,60 @@ export default function CreateHospital() {
                                         <AlertCircle className="h-3 w-3" /> {errors.legalName}
                                     </p>
                                 )}
-                            </div>
+                            </FieldWrapper>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="type">
+                            <FieldWrapper>
+                                <Label htmlFor="typeId">
                                     Hospital Type <span className="text-red-500">*</span>
                                 </Label>
                                 <Select
-                                    value={formData.type}
-                                    onValueChange={(value) => handleInputChange("type", value)}
+                                    value={formData.typeId}
+                                    onValueChange={(value) => handleInputChange("typeId", Number(value))}
                                 >
-                                    <SelectTrigger className={errors.type ? "border-red-500 focus-visible:ring-red-500" : ""}>
+                                    <SelectTrigger className={errors.typeId ? "border-red-500 focus-visible:ring-red-500" : ""}>
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {HOSPITAL_TYPES.map(type => (
-                                            <SelectItem key={type} value={type}>{type}</SelectItem>
-                                        ))}
+                                        {hospitalTypes.length > 0 ? (
+                                            hospitalTypes.map(type => (
+                                                <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="none" disabled>Data Not Found</SelectItem>
+                                        )}
                                     </SelectContent>
                                 </Select>
-                                {errors.type && (
+                                {errors.typeId && (
                                     <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.type}
+                                        <AlertCircle className="h-3 w-3" /> {errors.typeId}
                                     </p>
                                 )}
-                            </div>
+                            </FieldWrapper>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="status">Status</Label>
+                            <FieldWrapper>
+                                <Label htmlFor="statusId">Status</Label>
                                 <Select
-                                    value={formData.status}
-                                    onValueChange={(value) => handleInputChange("status", value)}
+                                    value={formData.statusId}
+                                    onValueChange={(value) => handleInputChange("statusId", value)}
                                 >
                                     {/* : "active" | "inactive" | "maintenance" */}
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="active">
+                                        <SelectItem value="1">
                                             <div className="flex items-center gap-2">
                                                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                                                 Active
                                             </div>
                                         </SelectItem>
-                                        <SelectItem value="inactive">
+                                        <SelectItem value="2">
                                             <div className="flex items-center gap-2">
                                                 <span className="h-2 w-2 rounded-full bg-slate-400" />
                                                 Inactive
                                             </div>
                                         </SelectItem>
-                                        <SelectItem value="maintenance">
+                                        <SelectItem value="3">
                                             <div className="flex items-center gap-2">
                                                 <span className="h-2 w-2 rounded-full bg-amber-500" />
                                                 Under Maintenance
@@ -383,9 +378,9 @@ export default function CreateHospital() {
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </FieldWrapper>
 
-                            <div className="space-y-2">
+                            <FieldWrapper>
                                 <Label htmlFor="bedCapacity">Bed Capacity</Label>
                                 <Input
                                     id="bedCapacity"
@@ -396,26 +391,11 @@ export default function CreateHospital() {
                                     onChange={(e) => handleInputChange("bedCapacity", parseInt(e.target.value) || 0)}
                                     className={errors.bedCapacity ? "border-red-500 focus-visible:ring-red-500" : ""}
                                 />
-                            </div>
+                            </FieldWrapper>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="accreditation">Accreditation</Label>
-                                <Select
-                                    value={formData.accreditation}
-                                    onValueChange={(value) => handleInputChange("accreditation", value)}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select accreditation" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {ACCREDITATIONS.map(acc => (
-                                            <SelectItem key={acc} value={acc}>{acc}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            {/* Accreditation select removed as it maps to dynamic facilities selection below */}
 
-                            <div className="space-y-2 sm:col-span-2">
+                            <FieldWrapper className="col-span-full">
                                 <Label htmlFor="description">Description</Label>
                                 <Textarea
                                     id="description"
@@ -424,23 +404,12 @@ export default function CreateHospital() {
                                     value={formData.description}
                                     onChange={(e) => handleInputChange("description", e.target.value)}
                                 />
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </FieldWrapper>
+                        </CardWithTitle>
 
-                    {/* Contact Information */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <Phone className="h-5 w-5 text-blue-600" />
-                                Contact Information
-                            </CardTitle>
-                            <CardDescription>
-                                How to reach the hospital administration
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid gap-6 sm:grid-cols-2">
-                            <div className="space-y-2">
+                        {/* Contact Information */}
+                        <CardWithTitle title="Contact Information" contentClass="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <FieldWrapper>
                                 <Label htmlFor="email">
                                     Email Address <span className="text-red-500">*</span>
                                 </Label>
@@ -460,9 +429,9 @@ export default function CreateHospital() {
                                         <AlertCircle className="h-3 w-3" /> {errors.email}
                                     </p>
                                 )}
-                            </div>
+                            </FieldWrapper>
 
-                            <div className="space-y-2">
+                            <FieldWrapper>
                                 <Label htmlFor="phone">
                                     Phone Number <span className="text-red-500">*</span>
                                 </Label>
@@ -482,9 +451,9 @@ export default function CreateHospital() {
                                         <AlertCircle className="h-3 w-3" /> {errors.phone}
                                     </p>
                                 )}
-                            </div>
+                            </FieldWrapper>
 
-                            <div className="space-y-2">
+                            {/* <FieldWrapper>
                                 <Label htmlFor="emergencyPhone">Emergency Hotline</Label>
                                 <div className="relative">
                                     <AlertCircle className="absolute left-3 top-2.5 h-4 w-4 text-red-400" />
@@ -497,9 +466,9 @@ export default function CreateHospital() {
                                         onChange={(e) => handleInputChange("emergencyPhone", e.target.value)}
                                     />
                                 </div>
-                            </div>
+                            </FieldWrapper> */}
 
-                            <div className="space-y-2">
+                            <FieldWrapper>
                                 <Label htmlFor="website">Website</Label>
                                 <div className="relative">
                                     <Globe className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -512,189 +481,209 @@ export default function CreateHospital() {
                                         onChange={(e) => handleInputChange("website", e.target.value)}
                                     />
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </FieldWrapper>
+                        </CardWithTitle>
 
-                    {/* Address */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <MapPin className="h-5 w-5 text-rose-600" />
-                                Address
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid gap-6 sm:grid-cols-2">
-                            <div className="space-y-2 sm:col-span-2">
-                                <Label htmlFor="address">
-                                    Street Address <span className="text-red-500">*</span>
+                        <CardWithTitle title="Location" contentClass="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <FieldWrapper className="col-span-full">
+                                <Label htmlFor="address1">
+                                    Address Line 1 <span className="text-red-500">*</span>
                                 </Label>
                                 <div className="relative">
                                     <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                                     <Input
-                                        id="address"
-                                        placeholder="123 Healthcare Avenue, Suite 100"
-                                        className={`pl-10 ${errors.address ? "border-red-500 focus-visible:ring-red-500" : ""}`}
-                                        value={formData.address}
-                                        onChange={(e) => handleInputChange("address", e.target.value)}
+                                        id="address1"
+                                        placeholder="123 Healthcare Avenue"
+                                        className={`pl-10 ${errors.address1 ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                                        value={formData.address1}
+                                        onChange={(e) => handleInputChange("address1", e.target.value)}
                                     />
                                 </div>
-                                {errors.address && (
+                                {errors.address1 && (
                                     <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.address}
+                                        <AlertCircle className="h-3 w-3" /> {errors.address1}
                                     </p>
                                 )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="city">
-                                    City <span className="text-red-500">*</span>
+                            </FieldWrapper>
+                            <FieldWrapper className="col-span-full">
+                                <Label htmlFor="address2">
+                                    Address Line 2
                                 </Label>
-                                <Input
-                                    id="city"
-                                    placeholder="New York"
-                                    value={formData.city}
-                                    onChange={(e) => handleInputChange("city", e.target.value)}
-                                    className={errors.city ? "border-red-500 focus-visible:ring-red-500" : ""}
-                                />
-                                {errors.city && (
-                                    <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.city}
-                                    </p>
-                                )}
-                            </div>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        id="address2"
+                                        placeholder="Suite 100"
+                                        className={`pl-10 ${errors.address2 ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                                        value={formData.address2}
+                                        onChange={(e) => handleInputChange("address2", e.target.value)}
+                                    />
+                                </div>
+                            </FieldWrapper>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="state">
-                                    State / Province <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="state"
-                                    placeholder="NY"
-                                    value={formData.state}
-                                    onChange={(e) => handleInputChange("state", e.target.value)}
-                                    className={errors.state ? "border-red-500 focus-visible:ring-red-500" : ""}
-                                />
-                                {errors.state && (
-                                    <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.state}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="zipCode">ZIP / Postal Code</Label>
-                                <Input
-                                    id="zipCode"
-                                    placeholder="10001"
-                                    value={formData.zipCode}
-                                    onChange={(e) => handleInputChange("zipCode", e.target.value)}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="country">
+                            <FieldWrapper>
+                                <Label htmlFor="countryId">
                                     Country <span className="text-red-500">*</span>
                                 </Label>
-                                <Input
-                                    id="country"
-                                    placeholder="United States"
-                                    value={formData.country}
-                                    onChange={(e) => handleInputChange("country", e.target.value)}
-                                    className={errors.country ? "border-red-500 focus-visible:ring-red-500" : ""}
-                                />
-                                {errors.country && (
+                                <Select
+                                    value={formData.countryId}
+                                    onValueChange={(value) => handleInputChange("countryId", value)}
+                                >
+                                    <SelectTrigger className={errors.countryId ? "border-red-500 focus-visible:ring-red-500" : ""}>
+                                        <SelectValue placeholder="Select country" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {countries.length > 0 ? (
+                                            countries.map(country => (
+                                                <SelectItem key={country.id} value={country.id.toString()}>{country.name}</SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="none" disabled>Data Not Found</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                                {errors.countryId && (
                                     <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.country}
+                                        <AlertCircle className="h-3 w-3" /> {errors.countryId}
                                     </p>
                                 )}
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </FieldWrapper>
 
-                    {/* Facilities & Services */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <Stethoscope className="h-5 w-5 text-violet-600" />
-                                Facilities & Services
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="flex flex-wrap gap-4">
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox
-                                        id="emergency"
-                                        checked={formData.hasEmergency}
-                                        onCheckedChange={(checked) => handleInputChange("hasEmergency", checked)}
-                                    />
-                                    <Label htmlFor="emergency" className="cursor-pointer font-normal">
-                                        24/7 Emergency Department
-                                    </Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox
-                                        id="icu"
-                                        checked={formData.hasICU}
-                                        onCheckedChange={(checked) => handleInputChange("hasICU", checked)}
-                                    />
-                                    <Label htmlFor="icu" className="cursor-pointer font-normal">
-                                        Intensive Care Unit (ICU)
-                                    </Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox
-                                        id="pharmacy"
-                                        checked={formData.hasPharmacy}
-                                        onCheckedChange={(checked) => handleInputChange("hasPharmacy", checked)}
-                                    />
-                                    <Label htmlFor="pharmacy" className="cursor-pointer font-normal">
-                                        On-site Pharmacy
-                                    </Label>
-                                </div>
+                            <FieldWrapper>
+                                <Label htmlFor="stateId">
+                                    State / Province <span className="text-red-500">*</span>
+                                </Label>
+                                <Select
+                                    value={formData.stateId}
+                                    onValueChange={(value) => handleInputChange("stateId", value)}
+                                    disabled={!formData.countryId}
+                                >
+                                    <SelectTrigger className={errors.stateId ? "border-red-500 focus-visible:ring-red-500" : ""}>
+                                        <SelectValue placeholder={formData.countryId ? "Select state" : "Select country first"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {filteredStates.length > 0 ? (
+                                            filteredStates.map(state => (
+                                                <SelectItem key={state.id} value={state.id.toString()}>{state.name}</SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="none" disabled>Data Not Found</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                                {errors.stateId && (
+                                    <p className="text-sm text-red-500 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" /> {errors.stateId}
+                                    </p>
+                                )}
+                            </FieldWrapper>
+
+                            <FieldWrapper>
+                                <Label htmlFor="cityId">
+                                    City <span className="text-red-500">*</span>
+                                </Label>
+                                <Select
+                                    value={formData.cityId}
+                                    onValueChange={(value) => handleInputChange("cityId", value)}
+                                    disabled={!formData.stateId}
+                                >
+                                    <SelectTrigger className={errors.cityId ? "border-red-500 focus-visible:ring-red-500" : ""}>
+                                        <SelectValue placeholder={formData.stateId ? "Select city" : "Select state first"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {filteredCities.length > 0 ? (
+                                            filteredCities.map(city => (
+                                                <SelectItem key={city.id} value={city.id.toString()}>{city.name}</SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="none" disabled>Data Not Found</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                                {errors.cityId && (
+                                    <p className="text-sm text-red-500 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" /> {errors.cityId}
+                                    </p>
+                                )}
+                            </FieldWrapper>
+
+                            <FieldWrapper>
+                                <Label htmlFor="pinCode">ZIP / Postal Code</Label>
+                                <Input
+                                    id="pinCode"
+                                    placeholder="10001"
+                                    value={formData.pinCode}
+                                    onChange={(e) => handleInputChange("pinCode", e.target.value)}
+                                />
+                            </FieldWrapper>
+                        </CardWithTitle>
+
+                        <CardWithTitle title="Facilities & Services" contentClass="flex-col justify-start gap-3 ">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                {facilities.length > 0 ? (
+                                    facilities.map((facility) => (
+                                        <div key={facility.id} className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id={`facility-${facility.id}`}
+                                                checked={formData.facilities.some(f => f.id === facility.id)}
+                                                onCheckedChange={(checked) => {
+                                                    setFormData(prev => {
+                                                        const current = prev.facilities;
+                                                        const updated = checked
+                                                            ? [...current, { id: facility.id, name: facility.name }]
+                                                            : current.filter(f => f.id !== facility.id);
+                                                        return { ...prev, facilities: updated };
+                                                    });
+                                                }}
+                                            />
+                                            <Label htmlFor={`facility-${facility.id}`} className="cursor-pointer font-normal">
+                                                {facility.name}
+                                            </Label>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-slate-500 dark:text-slate-400 text-sm col-span-full">
+                                        Data Not Found
+                                    </div>
+                                )}
                             </div>
 
                             <Separator />
 
-                            <div>
+                            <div className="w-full">
                                 <Label className="mb-3 block">Medical Specialties</Label>
-                                <div className="flex flex-wrap gap-2">
-                                    {SPECIALTIES.map((specialty) => (
-                                        <Badge
-                                            key={specialty}
-                                            variant={formData.specialties.includes(specialty) ? "default" : "outline"}
-                                            className={`cursor-pointer transition-all hover:scale-105 ${formData.specialties.includes(specialty)
-                                                ? "bg-emerald-600 hover:bg-emerald-700"
-                                                : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                                                }`}
-                                            onClick={() => handleSpecialtyToggle(specialty)}
-                                        >
-                                            {specialty}
-                                            {formData.specialties.includes(specialty) && (
-                                                <CheckCircle2 className="ml-1 h-3 w-3" />
-                                            )}
-                                        </Badge>
-                                    ))}
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
+                                    {specialties.length > 0 ? (
+                                        specialties.map((specialty) => (
+                                            <Badge
+                                                key={specialty.id}
+                                                variant={formData.specialties.some((spec) => spec.id === specialty.id) ? "default" : "outline"}
+                                                className={`cursor-pointer py-1 flex justify-between text-xs transition-all hover:scale-105 ${formData.specialties.some((spec) => spec.id === specialty.id)
+                                                    ? "bg-emerald-600 hover:bg-emerald-700"
+                                                    : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                    }`}
+                                                onClick={() => handleSpecialtyToggle(specialty)}
+                                            >
+                                                {specialty.name}
+                                                {formData.specialties.includes(specialty.name) && (
+                                                    <CheckCircle2 className="ml-1 h-3 w-3" />
+                                                )}
+                                            </Badge>
+                                        ))
+                                    ) : (
+                                        <div className="text-slate-500 dark:text-slate-400 text-sm col-span-full">
+                                            Data Not Found
+                                        </div>
+                                    )}
                                 </div>
                                 <p className="mt-2 text-sm text-slate-500">
                                     Click to select the specialties offered by this hospital
                                 </p>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </CardWithTitle>
 
-                    {/* Operating Hours */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <Clock className="h-5 w-5 text-amber-600" />
-                                Operating Hours
-                            </CardTitle>
-                            <CardDescription>
-                                Regular visiting and outpatient hours
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {/* Operating Hours */}
+                        <CardWithTitle title="Operating Hours" contentClass="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {Object.entries(formData.operatingHours).map(([day, hours]) => (
                                 <div key={day} className="space-y-2">
                                     <Label htmlFor={day} className="capitalize font-medium">
@@ -702,53 +691,40 @@ export default function CreateHospital() {
                                     </Label>
                                     <Input
                                         id={day}
-                                        placeholder="e.g., 08:00 - 18:00"
+                                        placeholder="e.g., 08:00 AM - 06:00 PM"
                                         value={hours}
                                         onChange={(e) => handleHoursChange(day, e.target.value)}
                                     />
                                 </div>
                             ))}
-                        </CardContent>
-                    </Card>
+                        </CardWithTitle>
 
-                    {/* Footer Actions */}
-                    <CardFooter className="flex justify-end gap-4 px-0">
-                        <Button
-                            variant="outline"
-                            type="button"
-                            onClick={handleCancel}
-                            className="sm:hidden"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="outline"
-                            type="button"
-                            onClick={handleCancel}
-                            className="hidden sm:inline-flex"
-                        >
-                            Discard Changes
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[140px]"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                    Creating...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="mr-2 h-4 w-4" />
-                                    Create Hospital
-                                </>
-                            )}
-                        </Button>
-                    </CardFooter>
-                </form>
+                        {/* Footer Actions */}
+                        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                            <Button
+                                variant="outline"
+                                type="button"
+                                onClick={handleCancel}
+                                iconType="ChevronLeft"
+                                size="sm"
+                                className="sm:h-9"
+                            >
+                                <span className="hidden sm:inline">Cancel</span>
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                iconType={isSubmitting ? "Loader2" : "Save"}
+                                size="sm"
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white sm:h-9 min-w-[120px]"
+                            >
+                                {isSubmitting ? "Creating..." : "Create Hospital"}
+                            </Button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </>
+
     );
 }

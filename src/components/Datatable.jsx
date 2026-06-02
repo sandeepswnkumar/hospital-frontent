@@ -25,7 +25,21 @@ import NoRecords from './ui/no-records'
 //     INVOICE_GENERATE: 'INVOICE_GENERATE'
 // };
 
-const Datatable = ({ columns, data = [], totalDataCount, allcheck, showCheckbox = true, setDeleteId, deleteId, pagination, onPageChange, onFilterChange }) => {
+const Datatable = ({
+    columns,
+    data = [],
+    title = "",
+    totalDataCount,
+    allcheck,
+    showCheckbox = true,
+    setDeleteId,
+    deleteId,
+    pagination,
+    onPageChange,
+    onFilterChange,
+    redirectUrl = "",
+    createRecordUrl = "/"
+}) => {
     const location = useLocation()
     const navigate = useNavigate()
     const searchParams = new URLSearchParams(location.search)
@@ -179,7 +193,7 @@ const Datatable = ({ columns, data = [], totalDataCount, allcheck, showCheckbox 
             {/* Toolbar */}
             <div className="px-5 py-3.5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                    <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">All Records</span>
+                    <span className="text-md font-semibold text-gray-800 dark:text-slate-200">{title || "All Records"}</span>
                     <span className="bg-gray-100 dark:bg-black/25 text-gray-500 dark:text-gray-400 text-xs px-2 py-0.5 rounded-md font-medium">
                         {totalRecords}
                     </span>
@@ -297,7 +311,7 @@ const Datatable = ({ columns, data = [], totalDataCount, allcheck, showCheckbox 
                             {/* Add New */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Link to={`/hospitals/create`} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800/40 rounded-lg transition-colors">
+                                    <Link to={createRecordUrl} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800/40 rounded-lg transition-colors">
                                         <PlusSquareIcon className="size-4 p-0 m-0" />
                                     </Link>
                                 </TooltipTrigger>
@@ -358,6 +372,8 @@ const Datatable = ({ columns, data = [], totalDataCount, allcheck, showCheckbox 
                     handleAllChange={handleAllChange}
                     handleCheckboxChange={handleCheckboxChange}
                     handleCheckboxClick={handleCheckboxClick}
+                    redirectUrl={redirectUrl}
+
                 />
             ) : (
                 <DatatableList
@@ -370,6 +386,7 @@ const Datatable = ({ columns, data = [], totalDataCount, allcheck, showCheckbox 
                     handleCheckboxClick={handleCheckboxClick}
                     tbodyRef={tbodyRef}
                     data={filteredData}
+                    redirectUrl={redirectUrl}
                 />
             )}
 

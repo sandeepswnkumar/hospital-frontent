@@ -35,6 +35,10 @@ import NotFound from './pages/shared/NotFound';
 import Offline from './pages/shared/Offline';
 import Hospitals from './pages/Hospital/Listing/Hospitals';
 import CreateHospital from './pages/Hospital/CreateHospital';
+import EditHospital from './pages/Hospital/EditHospital';
+import Doctors from './pages/Doctor/Listing/Doctors';
+import CreateDoctor from './pages/Doctor/CreateDoctor';
+import EditDoctor from './pages/Doctor/EditDoctor';
 
 // Dynamic landing page redirect based on role
 const RootRedirect = () => {
@@ -97,7 +101,11 @@ export default function App() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="patients" element={<Patients entity="Patients" role="Admin" />} />
             <Route path="hospitals" element={<Hospitals entity="Hospitals" role="Admin" />} />
-            <Route path="hospitals/create" element={<CreateHospital entity="Hospitals" role="Admin" />} />
+            <Route path="hospital/create" element={<CreateHospital entity="Hospitals" role="Admin" />} />
+            <Route path="hospital/:id" element={<EditHospital entity="Hospitals" role="Admin" />} />
+            <Route path="doctors" element={<Doctors entity="Doctors" role="Admin" />} />
+            <Route path="doctor/create" element={<CreateDoctor entity="Doctors" role="Admin" />} />
+            <Route path="doctor/:id" element={<EditDoctor entity="Doctors" role="Admin" />} />
             <Route path="appointments" element={<StaffDashboard entity="Appointments" role="Admin" />} />
             <Route path="payments" element={<ListingPage entity="Payments" role="Admin" />} />
           </Route>

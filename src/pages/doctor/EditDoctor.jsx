@@ -18,22 +18,20 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
-    Building2,
+    User,
     Phone,
     Mail,
     MapPin,
     Globe,
     Stethoscope,
-    Clock,
     AlertCircle,
     CheckCircle2,
     ChevronLeft,
     Save,
-    X,
+    Building2,
+    DollarSign,
+    Award,
     Loader2
 } from "lucide-react";
 import HeaderCard from "@/layouts/HeaderCard";
@@ -41,100 +39,91 @@ import CardWithTitle from "@/layouts/CardWithTitle";
 import FieldWrapper from "@/components/FieldWrapper";
 import { useMasterData } from "@/context/MasterDataContext";
 import HospitalService from "@/services/HospitalService";
+import MedicalSpecialtyService from "@/services/MedicalSpecialtyService";
+import DoctorService from "@/services/DoctorService";
 import { useNavigate, useParams } from "react-router-dom";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 
-export default function EditHospital() {
+export default function EditDoctor() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { facilities = [], hospitalTypes = [], specialties = [], cities = [], states = [], countries = [] } = useMasterData();
+    const { cities = [], states = [], countries = [] } = useMasterData();
 
-    const [formData, setFormData] = useState({
-        name: "",
-        registrationNumber: "",
-        legalName: "",
-        typeId: "",
-        statusId: "1",
-        email: "",
-        phone: "",
-        emergencyPhone: "",
-        website: "",
-        address1: "",
-        address2: "",
-        cityId: "",
-        stateId: "",
-        pinCode: "",
-        countryId: "",
-        description: "",
-        specialties: [],
-        facilities: [],
-        operatingHours: {
-            monday: "08:00 AM - 06:00 PM",
-            tuesday: "08:00 AM - 06:00 PM",
-            wednesday: "08:00 AM - 06:00 PM",
-            thursday: "08:00 AM - 06:00 PM",
-            friday: "08:00 AM - 06:00 PM",
-            saturday: "09:00 AM - 02:00 PM",
-            sunday: "Closed"
-        },
-        bedCapacity: 0
-    });
-
-    console.log("formData === ", formData)
-
-    const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
+    // Initial labels for searchable selects
+    const [specialtyLabel, setSpecialtyLabel] = useState("");
+    const [hospitalLabel, setHospitalLabel] = useState("");
+
+    const [formData, setFormData] = useState({
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        gender: "",
+        licenseNumber: "",
+        consultationFee: 0,
+        experienceYears: "",
+        statusId: 1,
+        specialtyId: "",
+        hospitalId: "",
+        address1: "",
+        address2: "",
+        countryId: "",
+        stateId: "",
+        cityId: "",
+        pinCode: "",
+        description: ""
+    });
+
+    const [errors, setErrors] = useState({});
+
     useEffect(() => {
-        const fetchHospitalDetails = async () => {
+        const loadInitialData = async () => {
             try {
                 setIsLoading(true);
-                const resp = await HospitalService.getHospitalById(id);
-                if (resp.success) {
-                    const data = resp.data;
+                const docResp = await DoctorService.getDoctorById(id);
+
+                if (docResp.success) {
+                    const data = docResp.data;
                     setFormData({
-                        name: data.name || "",
-                        registrationNumber: data.registrationNumber || "",
-                        legalName: data.legalName || "",
-                        typeId: data.typeId || data.hospitalType?.id || "",
-                        statusId: data.statusId?.toString() || data.status?.id?.toString() || "1",
+                        firstName: data.firstName || "",
+                        middleName: data.middleName || "",
+                        lastName: data.lastName || "",
                         email: data.email || "",
                         phone: data.phone || "",
-                        emergencyPhone: data.emergencyPhone || "",
-                        website: data.website || "",
+                        gender: data.gender || "",
+                        licenseNumber: data.licenseNumber || data.registrationNumber || "",
+                        consultationFee: data.consultationFee || data.charge || 0,
+                        experienceYears: data.experienceYears || data.experience || "",
+                        statusId: data.statusId !== undefined ? Number(data.statusId) : (data.status?.id !== undefined ? Number(data.status.id) : 1),
+                        specialtyId: data.specialtyId || data.specialty?.id || data.medicalSpecialty?.id || "",
+                        hospitalId: data.hospitalId || data.hospital?.id || "",
                         address1: data.address1 || "",
                         address2: data.address2 || "",
-                        cityId: data.cityId?.toString() || data.city?.id?.toString() || "",
-                        stateId: data.stateId?.toString() || data.state?.id?.toString() || "",
-                        pinCode: data.pinCode || "",
                         countryId: data.countryId?.toString() || data.country?.id?.toString() || "",
-                        description: data.description || "",
-                        specialties: data.specialties || [],
-                        facilities: data.facilities || [],
-                        operatingHours: data.operatingHours || {
-                            monday: "08:00 AM - 06:00 PM",
-                            tuesday: "08:00 AM - 06:00 PM",
-                            wednesday: "08:00 AM - 06:00 PM",
-                            thursday: "08:00 AM - 06:00 PM",
-                            friday: "08:00 AM - 06:00 PM",
-                            saturday: "09:00 AM - 02:00 PM",
-                            sunday: "Closed"
-                        },
-                        bedCapacity: data.bedCapacity || 0
+                        stateId: data.stateId?.toString() || data.state?.id?.toString() || "",
+                        cityId: data.cityId?.toString() || data.city?.id?.toString() || "",
+                        pinCode: data.pinCode || "",
+                        description: data.description || ""
                     });
-                } else {
-                    console.error("Failed to load hospital details");
+
+                    // Set initial labels
+                    setSpecialtyLabel(data.specialty?.name || data.medicalSpecialty?.name || "");
+                    setHospitalLabel(data.hospital?.name || "");
                 }
             } catch (err) {
-                console.error("Error loading hospital details", err);
+                console.error("Failed to load doctor details", err);
             } finally {
                 setIsLoading(false);
             }
         };
 
         if (id) {
-            fetchHospitalDetails();
+            loadInitialData();
         }
     }, [id]);
 
@@ -166,6 +155,38 @@ export default function EditHospital() {
         }
     };
 
+    // Specialty search from backend
+    const handleSpecialtySearch = async (query) => {
+        try {
+            const resp = await MedicalSpecialtyService.getMedicalSpecialties({ search: query });
+            if (resp.success && Array.isArray(resp.data)) {
+                return resp.data.map(spec => ({
+                    value: spec.id,
+                    label: spec.name
+                }));
+            }
+        } catch (err) {
+            console.error("Failed to search specialties", err);
+        }
+        return [];
+    };
+
+    // Hospital search from backend
+    const handleHospitalSearch = async (query) => {
+        try {
+            const resp = await HospitalService.getHospitals({ search: query });
+            if (resp.success && Array.isArray(resp.data)) {
+                return resp.data.map(hosp => ({
+                    value: hosp.id,
+                    label: hosp.name
+                }));
+            }
+        } catch (err) {
+            console.error("Failed to search hospitals", err);
+        }
+        return [];
+    };
+
     const filteredStates = formData.countryId
         ? states.filter(s => s.country?.id === parseInt(formData.countryId))
         : [];
@@ -174,44 +195,25 @@ export default function EditHospital() {
         ? cities.filter(c => c.state?.id === parseInt(formData.stateId))
         : [];
 
-    const handleSpecialtyToggle = (specialty) => {
-        setFormData(prev => {
-            const current = prev.specialties;
-            const updated = current.some(s => s.id === specialty.id)
-                ? current.filter(s => s.id !== specialty.id)
-                : [...current, { id: specialty.id, name: specialty.name }];
-            return { ...prev, specialties: updated };
-        });
-    };
-
-    const handleHoursChange = (day, value) => {
-        setFormData(prev => ({
-            ...prev,
-            operatingHours: {
-                ...prev.operatingHours,
-                [day]: value
-            }
-        }));
-    };
-
     const validate = () => {
         const newErrors = {};
 
-        if (!formData.name.trim()) newErrors.name = "Hospital name is required";
-        if (!formData.legalName.trim()) newErrors.legalName = "Legal name is required";
-        if (!formData.registrationNumber.trim()) newErrors.registrationNumber = "Registration Number is required";
-        if (!formData.typeId) newErrors.typeId = "Hospital type is required";
+        if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+        if (!formData.specialtyId) newErrors.specialtyId = "Specialty is required";
+        if (!formData.hospitalId) newErrors.hospitalId = "Hospital assignment is required";
         if (!formData.email.trim()) {
             newErrors.email = "Email is required";
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = "Invalid email format";
         }
         if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+        if (!formData.licenseNumber.trim()) newErrors.licenseNumber = "License number is required";
+        if (formData.consultationFee < 0) newErrors.consultationFee = "Consultation fee cannot be negative";
+        if (!formData.experienceYears.trim()) newErrors.experienceYears = "Experience is required";
         if (!formData.address1.trim()) newErrors.address1 = "Address is required";
         if (!formData.cityId) newErrors.cityId = "City is required";
         if (!formData.stateId) newErrors.stateId = "State/Province is required";
         if (!formData.countryId) newErrors.countryId = "Country is required";
-        if (formData.bedCapacity < 0) newErrors.bedCapacity = "Bed capacity cannot be negative";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -222,17 +224,16 @@ export default function EditHospital() {
         if (!validate()) return;
         setIsSubmitting(true);
         try {
-            console.log("formdata", formData);
-            const resp = await HospitalService.updateHospital(id, formData);
+            console.log("Submitting Update Doctor Data:", formData);
+            const resp = await DoctorService.updateDoctor(id, formData);
             if (resp.success) {
                 setShowSuccess(true);
                 setTimeout(() => {
-                    navigate("/admin/hospitals");
+                    navigate("/admin/doctors");
                 }, 1500);
             }
-            console.log("resp == ", resp);
         } catch (err) {
-            console.error("Error updating hospital:", err);
+            console.error("Error updating doctor:", err);
         } finally {
             setIsSubmitting(false);
         }
@@ -248,7 +249,7 @@ export default function EditHospital() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] h-full gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-                <p className="text-slate-500 text-sm">Loading hospital details...</p>
+                <p className="text-slate-500 text-sm">Loading doctor details...</p>
             </div>
         );
     }
@@ -257,7 +258,7 @@ export default function EditHospital() {
         <>
             <HeaderCard >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <h1 className="text-xl font-semibold text-slate-800 dark:text-white">Edit Hospital</h1>
+                    <h1 className="text-xl font-semibold text-slate-800 dark:text-white">Edit Doctor</h1>
                     <div className="flex items-center gap-2 sm:gap-3">
                         <Button
                             variant="outline"
@@ -287,93 +288,90 @@ export default function EditHospital() {
                     <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2 fade-in duration-300">
                         <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
                             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                            <span className="font-medium">Hospital updated successfully!</span>
+                            <span className="font-medium">Doctor details updated successfully!</span>
                         </div>
                     </div>
                 )}
 
                 <div className="w-full">
-                    <form onSubmit={handleSubmit} className=" flex flex-col gap-3 ">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                         {/* Basic Information */}
                         <CardWithTitle title="Basic Information" contentClass="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             <FieldWrapper>
-                                <Label htmlFor="name">
-                                    Hospital Name <span className="text-red-500">*</span>
+                                <Label htmlFor="firstName">
+                                    First Name <span className="text-red-500">*</span>
                                 </Label>
-                                <Input
-                                    id="name"
-                                    placeholder="e.g., St. Mary's General Hospital"
-                                    value={formData.name}
-                                    onChange={(e) => handleInputChange("name", e.target.value)}
-                                    className={errors.name ? "border-red-500 focus-visible:ring-red-500" : ""}
-                                />
-                                {errors.name && (
+                                <div className="relative">
+                                    <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        id="firstName"
+                                        placeholder="e.g., Jane"
+                                        className={`pl-10 ${errors.firstName ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                                        value={formData.firstName}
+                                        onChange={(e) => handleInputChange("firstName", e.target.value)}
+                                    />
+                                </div>
+                                {errors.firstName && (
                                     <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.name}
+                                        <AlertCircle className="h-3 w-3" /> {errors.firstName}
                                     </p>
                                 )}
                             </FieldWrapper>
 
                             <FieldWrapper>
-                                <Label htmlFor="registrationNumber">
-                                    Registration Number <span className="text-red-500">*</span>
-                                </Label>
+                                <Label htmlFor="middleName">Middle Name</Label>
                                 <Input
-                                    id="registrationNumber"
-                                    placeholder="e.g., 123456789"
-                                    value={formData.registrationNumber}
-                                    onChange={(e) => handleInputChange("registrationNumber", e.target.value)}
-                                    className={errors.registrationNumber ? "border-red-500 focus-visible:ring-red-500" : ""}
+                                    id="middleName"
+                                    placeholder="e.g., Marie"
+                                    value={formData.middleName}
+                                    onChange={(e) => handleInputChange("middleName", e.target.value)}
                                 />
-                                {errors.registrationNumber && (
-                                    <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.registrationNumber}
-                                    </p>
-                                )}
                             </FieldWrapper>
 
                             <FieldWrapper>
-                                <Label htmlFor="legalName">
-                                    Legal/Registered Name <span className="text-red-500">*</span>
-                                </Label>
+                                <Label htmlFor="lastName">Last Name</Label>
                                 <Input
-                                    id="legalName"
-                                    placeholder="e.g., St. Mary's Healthcare System, Inc."
-                                    value={formData.legalName}
-                                    onChange={(e) => handleInputChange("legalName", e.target.value)}
-                                    className={errors.legalName ? "border-red-500 focus-visible:ring-red-500" : ""}
+                                    id="lastName"
+                                    placeholder="e.g., Smith"
+                                    value={formData.lastName}
+                                    onChange={(e) => handleInputChange("lastName", e.target.value)}
                                 />
-                                {errors.legalName && (
-                                    <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.legalName}
-                                    </p>
-                                )}
                             </FieldWrapper>
 
                             <FieldWrapper>
-                                <Label htmlFor="typeId">
-                                    Hospital Type <span className="text-red-500">*</span>
-                                </Label>
+                                <Label htmlFor="gender">Gender</Label>
                                 <Select
-                                    value={formData.typeId ? formData.typeId.toString() : ""}
-                                    onValueChange={(value) => handleInputChange("typeId", Number(value))}
+                                    value={formData.gender}
+                                    onValueChange={(value) => handleInputChange("gender", value)}
                                 >
-                                    <SelectTrigger className={errors.typeId ? "border-red-500 focus-visible:ring-red-500" : ""}>
-                                        <SelectValue placeholder="Select type" />
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select gender" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {hospitalTypes.length > 0 ? (
-                                            hospitalTypes.map(type => (
-                                                <SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>
-                                            ))
-                                        ) : (
-                                            <SelectItem value="none" disabled>Data Not Found</SelectItem>
-                                        )}
+                                        <SelectItem value="Male">Male</SelectItem>
+                                        <SelectItem value="Female">Female</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                {errors.typeId && (
+                            </FieldWrapper>
+
+                            <FieldWrapper>
+                                <Label htmlFor="licenseNumber">
+                                    License/Registration Number <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="relative">
+                                    <Award className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        id="licenseNumber"
+                                        placeholder="e.g., LIC123456"
+                                        className={`pl-10 ${errors.licenseNumber ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                                        value={formData.licenseNumber}
+                                        onChange={(e) => handleInputChange("licenseNumber", e.target.value)}
+                                    />
+                                </div>
+                                {errors.licenseNumber && (
                                     <p className="text-sm text-red-500 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" /> {errors.typeId}
+                                        <AlertCircle className="h-3 w-3" /> {errors.licenseNumber}
                                     </p>
                                 )}
                             </FieldWrapper>
@@ -381,8 +379,8 @@ export default function EditHospital() {
                             <FieldWrapper>
                                 <Label htmlFor="statusId">Status</Label>
                                 <Select
-                                    value={formData.statusId}
-                                    onValueChange={(value) => handleInputChange("statusId", value)}
+                                    value={formData.statusId ? formData.statusId.toString() : "1"}
+                                    onValueChange={(value) => handleInputChange("statusId", Number(value))}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
@@ -400,34 +398,56 @@ export default function EditHospital() {
                                                 Inactive
                                             </div>
                                         </SelectItem>
-                                        <SelectItem value="3">
-                                            <div className="flex items-center gap-2">
-                                                <span className="h-2 w-2 rounded-full bg-amber-500" />
-                                                Under Maintenance
-                                            </div>
-                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </FieldWrapper>
 
                             <FieldWrapper>
-                                <Label htmlFor="bedCapacity">Bed Capacity</Label>
+                                <Label htmlFor="consultationFee">
+                                    Consultation Fee (₹) <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="relative">
+                                    <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        id="consultationFee"
+                                        type="number"
+                                        min="0"
+                                        placeholder="e.g., 500"
+                                        className={`pl-10 ${errors.consultationFee ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                                        value={formData.consultationFee || ""}
+                                        onChange={(e) => handleInputChange("consultationFee", parseInt(e.target.value) || 0)}
+                                    />
+                                </div>
+                                {errors.consultationFee && (
+                                    <p className="text-sm text-red-500 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" /> {errors.consultationFee}
+                                    </p>
+                                )}
+                            </FieldWrapper>
+
+                            <FieldWrapper>
+                                <Label htmlFor="experienceYears">
+                                    Experience (Years/Text) <span className="text-red-500">*</span>
+                                </Label>
                                 <Input
-                                    id="bedCapacity"
-                                    type="number"
-                                    min="0"
-                                    placeholder="e.g., 250"
-                                    value={formData.bedCapacity || ""}
-                                    onChange={(e) => handleInputChange("bedCapacity", parseInt(e.target.value) || 0)}
-                                    className={errors.bedCapacity ? "border-red-500 focus-visible:ring-red-500" : ""}
+                                    id="experienceYears"
+                                    placeholder="e.g., 8 years"
+                                    className={errors.experienceYears ? "border-red-500 focus-visible:ring-red-500" : ""}
+                                    value={formData.experienceYears}
+                                    onChange={(e) => handleInputChange("experienceYears", e.target.value)}
                                 />
+                                {errors.experienceYears && (
+                                    <p className="text-sm text-red-500 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" /> {errors.experienceYears}
+                                    </p>
+                                )}
                             </FieldWrapper>
 
                             <FieldWrapper className="col-span-full">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">Biography/Professional Statement</Label>
                                 <Textarea
                                     id="description"
-                                    placeholder="Brief description of the hospital, its history, and mission..."
+                                    placeholder="Dr. Smith has over 10 years of experience in cardiology..."
                                     rows={3}
                                     value={formData.description}
                                     onChange={(e) => handleInputChange("description", e.target.value)}
@@ -435,8 +455,49 @@ export default function EditHospital() {
                             </FieldWrapper>
                         </CardWithTitle>
 
+                        {/* Professional Assignment */}
+                        <CardWithTitle title="Professional Placement" contentClass="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <FieldWrapper>
+                                <Label htmlFor="specialtyId">
+                                    Specialty <span className="text-red-500">*</span>
+                                </Label>
+                                <SearchableSelect
+                                    value={formData.specialtyId}
+                                    onChange={(value) => handleInputChange("specialtyId", value)}
+                                    onSearch={handleSpecialtySearch}
+                                    placeholder="Search & select specialty..."
+                                    searchPlaceholder="Type specialty name..."
+                                    initialLabel={specialtyLabel}
+                                />
+                                {errors.specialtyId && (
+                                    <p className="text-sm text-red-500 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" /> {errors.specialtyId}
+                                    </p>
+                                )}
+                            </FieldWrapper>
+
+                            <FieldWrapper>
+                                <Label htmlFor="hospitalId">
+                                    Hospital Assignment <span className="text-red-500">*</span>
+                                </Label>
+                                <SearchableSelect
+                                    value={formData.hospitalId}
+                                    onChange={(value) => handleInputChange("hospitalId", value)}
+                                    onSearch={handleHospitalSearch}
+                                    placeholder="Search & select hospital..."
+                                    searchPlaceholder="Type hospital name..."
+                                    initialLabel={hospitalLabel}
+                                />
+                                {errors.hospitalId && (
+                                    <p className="text-sm text-red-500 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" /> {errors.hospitalId}
+                                    </p>
+                                )}
+                            </FieldWrapper>
+                        </CardWithTitle>
+
                         {/* Contact Information */}
-                        <CardWithTitle title="Contact Information" contentClass="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <CardWithTitle title="Contact Information" contentClass="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <FieldWrapper>
                                 <Label htmlFor="email">
                                     Email Address <span className="text-red-500">*</span>
@@ -446,7 +507,7 @@ export default function EditHospital() {
                                     <Input
                                         id="email"
                                         type="email"
-                                        placeholder="admin@hospital.com"
+                                        placeholder="doctor@hospital.com"
                                         className={`pl-10 ${errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                                         value={formData.email}
                                         onChange={(e) => handleInputChange("email", e.target.value)}
@@ -480,23 +541,9 @@ export default function EditHospital() {
                                     </p>
                                 )}
                             </FieldWrapper>
-
-                            <FieldWrapper>
-                                <Label htmlFor="website">Website</Label>
-                                <div className="relative">
-                                    <Globe className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                                    <Input
-                                        id="website"
-                                        type="url"
-                                        placeholder="https://www.hospital.com"
-                                        className="pl-10"
-                                        value={formData.website}
-                                        onChange={(e) => handleInputChange("website", e.target.value)}
-                                    />
-                                </div>
-                            </FieldWrapper>
                         </CardWithTitle>
 
+                        {/* Location */}
                         <CardWithTitle title="Location" contentClass="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             <FieldWrapper className="col-span-full">
                                 <Label htmlFor="address1">
@@ -506,7 +553,7 @@ export default function EditHospital() {
                                     <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                                     <Input
                                         id="address1"
-                                        placeholder="123 Healthcare Avenue"
+                                        placeholder="123 Doctor Plaza"
                                         className={`pl-10 ${errors.address1 ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                                         value={formData.address1}
                                         onChange={(e) => handleInputChange("address1", e.target.value)}
@@ -518,16 +565,14 @@ export default function EditHospital() {
                                     </p>
                                 )}
                             </FieldWrapper>
+
                             <FieldWrapper className="col-span-full">
-                                <Label htmlFor="address2">
-                                    Address Line 2
-                                </Label>
+                                <Label htmlFor="address2">Address Line 2</Label>
                                 <div className="relative">
                                     <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                                     <Input
                                         id="address2"
-                                        placeholder="Suite 100"
-                                        className={`pl-10 ${errors.address2 ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                                        placeholder="Suite 404"
                                         value={formData.address2}
                                         onChange={(e) => handleInputChange("address2", e.target.value)}
                                     />
@@ -547,8 +592,8 @@ export default function EditHospital() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {countries.length > 0 ? (
-                                            countries.map(country => (
-                                                <SelectItem key={country.id} value={country.id.toString()}>{country.name}</SelectItem>
+                                            countries.map(c => (
+                                                <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
                                             ))
                                         ) : (
                                             <SelectItem value="none" disabled>Data Not Found</SelectItem>
@@ -576,8 +621,8 @@ export default function EditHospital() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {filteredStates.length > 0 ? (
-                                            filteredStates.map(state => (
-                                                <SelectItem key={state.id} value={state.id.toString()}>{state.name}</SelectItem>
+                                            filteredStates.map(s => (
+                                                <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>
                                             ))
                                         ) : (
                                             <SelectItem value="none" disabled>Data Not Found</SelectItem>
@@ -605,8 +650,8 @@ export default function EditHospital() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {filteredCities.length > 0 ? (
-                                            filteredCities.map(city => (
-                                                <SelectItem key={city.id} value={city.id.toString()}>{city.name}</SelectItem>
+                                            filteredCities.map(c => (
+                                                <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
                                             ))
                                         ) : (
                                             <SelectItem value="none" disabled>Data Not Found</SelectItem>
@@ -629,87 +674,6 @@ export default function EditHospital() {
                                     onChange={(e) => handleInputChange("pinCode", e.target.value)}
                                 />
                             </FieldWrapper>
-                        </CardWithTitle>
-
-                        <CardWithTitle title="Facilities & Services" contentClass="flex-col justify-start gap-3 ">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {facilities.length > 0 ? (
-                                    facilities.map((facility) => (
-                                        <div key={facility.id} className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={`facility-${facility.id}`}
-                                                checked={formData.facilities.some(f => f.id === facility.id)}
-                                                onCheckedChange={(checked) => {
-                                                    setFormData(prev => {
-                                                        const current = prev.facilities;
-                                                        const updated = checked
-                                                            ? [...current, { id: facility.id, name: facility.name }]
-                                                            : current.filter(f => f.id !== facility.id);
-                                                        return { ...prev, facilities: updated };
-                                                    });
-                                                }}
-                                            />
-                                            <Label htmlFor={`facility-${facility.id}`} className="cursor-pointer font-normal">
-                                                {facility.name}
-                                            </Label>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-slate-500 dark:text-slate-400 text-sm col-span-full">
-                                        Data Not Found
-                                    </div>
-                                )}
-                            </div>
-
-                            <Separator />
-
-                            <div className="w-full">
-                                <Label className="mb-3 block">Medical Specialties</Label>
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
-                                    {specialties.length > 0 ? (
-                                        specialties.map((specialty) => (
-                                            <Badge
-                                                key={specialty.id}
-                                                variant={formData.specialties.some((spec) => spec.id === specialty.id) ? "default" : "outline"}
-                                                className={`cursor-pointer py-1 flex justify-between text-xs transition-all hover:scale-105 ${formData.specialties.some((spec) => spec.id === specialty.id)
-                                                    ? "bg-emerald-600 hover:bg-emerald-700"
-                                                    : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                                                    }`}
-                                                onClick={() => handleSpecialtyToggle(specialty)}
-                                            >
-                                                {specialty.name}
-                                                {formData.specialties.some((spec) => spec.id === specialty.id) && (
-                                                    <CheckCircle2 className="ml-1 h-3 w-3 text-white" />
-                                                )}
-                                            </Badge>
-                                        ))
-                                    ) : (
-                                        <div className="text-slate-500 dark:text-slate-400 text-sm col-span-full">
-                                            Data Not Found
-                                        </div>
-                                    )}
-                                </div>
-                                <p className="mt-2 text-sm text-slate-500">
-                                    Click to select the specialties offered by this hospital
-                                </p>
-                            </div>
-                        </CardWithTitle>
-
-                        {/* Operating Hours */}
-                        <CardWithTitle title="Operating Hours" contentClass="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {Object.entries(formData.operatingHours).map(([day, hours]) => (
-                                <div key={day} className="space-y-2">
-                                    <Label htmlFor={day} className="capitalize font-medium">
-                                        {day}
-                                    </Label>
-                                    <Input
-                                        id={day}
-                                        placeholder="e.g., 08:00 AM - 06:00 PM"
-                                        value={hours}
-                                        onChange={(e) => handleHoursChange(day, e.target.value)}
-                                    />
-                                </div>
-                            ))}
                         </CardWithTitle>
 
                         {/* Footer Actions */}

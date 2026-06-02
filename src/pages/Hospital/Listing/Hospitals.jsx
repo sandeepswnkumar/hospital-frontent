@@ -1,11 +1,15 @@
-import React, { useState } from "react";
-import HospitalColumn from "./HospitalColumn";
+import React, { useEffect, useReducer, useState } from "react";
+import HospitalColumns from "./HospitalColumn";
 import DataTable from "@/components/Datatable";
 import BodyCard from "@/layouts/BodyCard";
+import HospitalService from "@/services/HospitalService";
 
 const Hospitals = () => {
     const [deleteId, setDeleteId] = useState([]);
-
+    const [event, updateEvent] = useReducer((prev, next) => ({ ...prev, ...next }), {
+        isPageLoading: false,
+        hospitalList: []
+    })
     const data = [
         {
             sl: 1,
@@ -129,18 +133,40 @@ const Hospitals = () => {
         },
     ];
 
-    // const data = []
+    const getHospitals = async () => {
+        try {
+            const resp = await HospitalService.getHospitals();
+            if (resp.success) {
+                const formattedData = resp.data.map(hospital => ({
+                    ...hospital,
+                    hospitalType: hospital.hospitalType?.name ?? '',
+                    status: hospital.status?.name ?? ''
+                }));
+                updateEvent({ hospitalList: formattedData })
+            }
+        } catch (err) { }
+    }
+
+    useEffect(() => {
+        updateEvent({ isPageLoading: true })
+        getHospitals()
+    }, [])
+
+    console.log("event.hospitalList == ", event.hospitalList)
 
     return (
         <BodyCard className="">
             <DataTable
-                columns={HospitalColumn()}
-                data={data}
+                columns={HospitalColumns()}
+                title="Hospitals"
+                data={event.hospitalList}
                 // showCheckBox={false}
-                totalDataCount={data.length}
+                totalDataCount={event.hospitalList.length}
                 allcheck={false}
                 deleteId={deleteId}
                 setDeleteId={setDeleteId}
+                createRecordUrl="/admin/hospital/create"
+                redirectUrl="/admin/hospital"
             />
 
         </BodyCard>
